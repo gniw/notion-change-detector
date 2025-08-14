@@ -1,0 +1,246 @@
+import { beforeEach, describe, expect, it, } from "vitest";
+import { type DatabaseChanges, NotionDiffer, } from "../../src/notion/differ";
+
+describe("NotionDiffer", () => {
+  let differ: NotionDiffer;
+
+  beforeEach(() => {
+    differ = new NotionDiffer();
+  });
+
+  describe("detectPageChanges", () => {
+    const databaseId = "test-db-123";
+    const databaseName = "Test Database";
+
+    it("新規ページを正しく検出する", () => {
+      const previousPages = [{ id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" }];
+      const currentPages = [
+        { id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" },
+        { id: "page-2", last_edited_time: "2025-01-02T00:00:00.000Z" },
+      ];
+
+      const result = differ.detectPageChanges(
+        previousPages,
+        currentPages,
+        databaseId,
+        databaseName,
+      );
+
+      expect(result.changes).toHaveLength(1);
+      expect(result.changes[0]).toEqual({
+        id: "page-2",
+        title: "page-2", // デフォルトタイトル
+        changeType: "added",
+        last_edited_time: "2025-01-02T00:00:00.000Z",
+      });
+      expect(result.summary.added).toBe(1);
+      expect(result.summary.updated).toBe(0);
+      expect(result.summary.deleted).toBe(0);
+    });
+
+    it("更新されたページを正しく検出する", () => {
+      const previousPages = [{ id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" }];
+      const currentPages = [{ id: "page-1", last_edited_time: "2025-01-01T12:00:00.000Z" }];
+
+      const result = differ.detectPageChanges(
+        previousPages,
+        currentPages,
+        databaseId,
+        databaseName,
+      );
+
+      expect(result.changes).toHaveLength(1);
+      expect(result.changes[0]).toEqual({
+        id: "page-1",
+        title: "page-1",
+        changeType: "updated",
+        last_edited_time: "2025-01-01T12:00:00.000Z",
+        previous_time: "2025-01-01T00:00:00.000Z",
+      });
+      expect(result.summary.updated).toBe(1);
+    });
+
+    it("削除されたページを正しく検出する", () => {
+      const previousPages = [
+        { id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" },
+        { id: "page-2", last_edited_time: "2025-01-02T00:00:00.000Z" },
+      ];
+      const currentPages = [{ id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" }];
+
+      const result = differ.detectPageChanges(
+        previousPages,
+        currentPages,
+        databaseId,
+        databaseName,
+      );
+
+      expect(result.changes).toHaveLength(1);
+      expect(result.changes[0]).toEqual({
+        id: "page-2",
+        title: "page-2",
+        changeType: "deleted",
+        last_edited_time: "2025-01-02T00:00:00.000Z",
+      });
+      expect(result.summary.deleted).toBe(1);
+    });
+
+    it("複数の変更タイプを同時に検出する", () => {
+      const previousPages = [
+        { id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" },
+        { id: "page-2", last_edited_time: "2025-01-02T00:00:00.000Z" },
+        { id: "page-3", last_edited_time: "2025-01-03T00:00:00.000Z" },
+      ];
+      const currentPages = [
+        { id: "page-1", last_edited_time: "2025-01-01T12:00:00.000Z" }, // 更新
+        { id: "page-4", last_edited_time: "2025-01-04T00:00:00.000Z" }, // 新規
+        // page-2, page-3 は削除
+      ];
+
+      const result = differ.detectPageChanges(
+        previousPages,
+        currentPages,
+        databaseId,
+        databaseName,
+      );
+
+      expect(result.changes).toHaveLength(4); // 1更新 + 1新規 + 2削除
+      expect(result.summary).toEqual({
+        added: 1,
+        updated: 1,
+        deleted: 2,
+      });
+
+      const changeTypes = result.changes.map((c) => c.changeType).sort();
+      expect(changeTypes).toEqual(["added", "deleted", "deleted", "updated"]);
+    });
+
+    it("変更がない場合は空の結果を返す", () => {
+      const pages = [{ id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" }];
+
+      const result = differ.detectPageChanges(pages, pages, databaseId, databaseName);
+
+      expect(result.changes).toHaveLength(0);
+      expect(result.summary).toEqual({
+        added: 0,
+        updated: 0,
+        deleted: 0,
+      });
+    });
+
+    it("空のページリストを正しく処理する", () => {
+      const result = differ.detectPageChanges([], [], databaseId, databaseName);
+
+      expect(result.changes).toHaveLength(0);
+      expect(result.databaseId).toBe(databaseId);
+      expect(result.databaseName).toBe(databaseName);
+    });
+  });
+
+  describe("extractPageTitle", () => {
+    it("Notionページオブジェクトからタイトルを抽出する", () => {
+      const pageWithTitle = {
+        id: "page-1",
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+        properties: {
+          Name: {
+            title: [{ plain_text: "Test Page Title" }],
+          },
+        },
+      };
+
+      const title = differ.extractPageTitle(pageWithTitle);
+      expect(title).toBe("Test Page Title");
+    });
+
+    it("Titleプロパティからタイトルを抽出する", () => {
+      const pageWithTitle = {
+        id: "page-1",
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+        properties: {
+          Title: {
+            title: [{ plain_text: "Another Title" }],
+          },
+        },
+      };
+
+      const title = differ.extractPageTitle(pageWithTitle);
+      expect(title).toBe("Another Title");
+    });
+
+    it("タイトルが見つからない場合はページIDを返す", () => {
+      const pageWithoutTitle = {
+        id: "page-without-title",
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+        properties: {},
+      };
+
+      const title = differ.extractPageTitle(pageWithoutTitle);
+      expect(title).toBe("page-without-title");
+    });
+
+    it("プロパティが存在しない場合はページIDを返す", () => {
+      const pageWithoutProperties = {
+        id: "page-no-props",
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+      };
+
+      const title = differ.extractPageTitle(pageWithoutProperties);
+      expect(title).toBe("page-no-props");
+    });
+  });
+
+  describe("hasChanges", () => {
+    it("変更があるDatabaseChangesでtrueを返す", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test DB",
+        changes: [
+          {
+            id: "page-1",
+            title: "Page 1",
+            changeType: "added",
+            last_edited_time: "2025-01-01T00:00:00.000Z",
+          },
+        ],
+        summary: { added: 1, updated: 0, deleted: 0 },
+      };
+
+      expect(differ.hasChanges(changes)).toBe(true);
+    });
+
+    it("変更がないDatabaseChangesでfalseを返す", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test DB",
+        changes: [],
+        summary: { added: 0, updated: 0, deleted: 0 },
+      };
+
+      expect(differ.hasChanges(changes)).toBe(false);
+    });
+  });
+
+  describe("getTotalChangeCount", () => {
+    it("総変更数を正しく計算する", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test DB",
+        changes: [],
+        summary: { added: 3, updated: 2, deleted: 1 },
+      };
+
+      expect(differ.getTotalChangeCount(changes)).toBe(6);
+    });
+
+    it("変更がない場合は0を返す", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test DB",
+        changes: [],
+        summary: { added: 0, updated: 0, deleted: 0 },
+      };
+
+      expect(differ.getTotalChangeCount(changes)).toBe(0);
+    });
+  });
+});
