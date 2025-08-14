@@ -71,3 +71,4 @@ This project follows Test-Driven Development (TDD):
 4. Focus on one feature/module at a time
 
 Phase 1 priority is establishing the Notion API client foundation.
+- コミットメッセージはConventionalCommitsに則り、英語で記述する

@@ -45,7 +45,7 @@ export class NotionDiffer {
           changeType: "added",
           last_edited_time: currentPage.last_edited_time,
         });
-      } else if (currentPage.last_edited_time !== previousPage.last_edited_time) {
+      } else if (this.hasPageChanged(previousPage, currentPage)) {
         changes.push({
           id: currentPage.id,
           title: this.extractPageTitle(currentPage),
@@ -79,6 +79,60 @@ export class NotionDiffer {
       changes,
       summary,
     };
+  }
+
+  private hasPageChanged(previousPage: SimplePage, currentPage: SimplePage): boolean {
+    // last_edited_timeの変更をチェック
+    if (currentPage.last_edited_time !== previousPage.last_edited_time) {
+      return true;
+    }
+
+    // プロパティの変更をチェック
+    return this.hasPropertiesChanged(previousPage.properties, currentPage.properties);
+  }
+
+  private hasPropertiesChanged(previousProps: any, currentProps: any): boolean {
+    // 両方ともプロパティがない場合は変更なし
+    if (!previousProps && !currentProps) {
+      return false;
+    }
+
+    // 一方だけにプロパティがある場合は変更あり
+    if (!previousProps || !currentProps) {
+      return true;
+    }
+
+    // プロパティの浅い比較
+    const prevKeys = Object.keys(previousProps);
+    const currKeys = Object.keys(currentProps);
+
+    // プロパティ数が違う場合は変更あり
+    if (prevKeys.length !== currKeys.length) {
+      return true;
+    }
+
+    // 各プロパティの値を比較
+    for (const key of prevKeys) {
+      if (!(key in currentProps)) {
+        return true;
+      }
+
+      // プロパティの値をJSON文字列で比較（簡易的な比較）
+      try {
+        const prevValue = JSON.stringify(previousProps[key]);
+        const currValue = JSON.stringify(currentProps[key]);
+        if (prevValue !== currValue) {
+          return true;
+        }
+      } catch {
+        // JSON化できない場合は参照比較
+        if (previousProps[key] !== currentProps[key]) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   extractPageTitle(page: SimplePage): string {

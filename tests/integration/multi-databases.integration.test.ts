@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 import { MultiDatabaseManager } from "../../src/config/multi-database-manager";
+import { PropertyExtractor } from "../../src/notion/property-extractor";
 
 async function testMultiDatabases() {
   console.log("🚀 複数データベース統合テストを開始します...\n");
@@ -106,11 +107,14 @@ async function testMultiDatabases() {
 
           if (databaseManager) {
             const actualPages = await databaseManager.getPages();
+            const extractor = new PropertyExtractor();
+            
             const testState = {
               lastSync: new Date().toISOString(),
               pages: actualPages.map((page) => ({
                 id: page.id,
                 last_edited_time: page.last_edited_time,
+                properties: extractor.extractProperties(page),
               })),
             };
             console.log(`      実際のページ数: ${testState.pages.length}件`);
