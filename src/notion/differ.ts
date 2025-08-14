@@ -11,6 +11,7 @@ export interface PageChange {
   last_edited_time: string;
   previous_time?: string;
   propertyChanges?: PropertyChange[];
+  initialProperties?: Record<string, unknown>;
 }
 
 export interface DatabaseChanges {
@@ -51,6 +52,7 @@ export class NotionDiffer {
           title: this.extractPageTitle(currentPage),
           changeType: "added",
           last_edited_time: currentPage.last_edited_time,
+          initialProperties: currentPage.properties || {},
         });
       } else if (this.hasPageChanged(previousPage, currentPage)) {
         const propertyChanges = this.getPropertyChanges(previousPage, currentPage);

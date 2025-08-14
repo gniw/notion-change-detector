@@ -27,7 +27,7 @@ describe("NotionDiffer", () => {
       );
 
       expect(result.changes).toHaveLength(1);
-      expect(result.changes[0]).toEqual({
+      expect(result.changes[0]).toMatchObject({
         id: "page-2",
         title: "page-2", // デフォルトタイトル
         changeType: "added",
@@ -154,6 +154,45 @@ describe("NotionDiffer", () => {
       expect(result.summary.updated).toBe(0);
     });
 
+    it("追加されたページのプロパティを記録する", () => {
+      const previousPages = [{ id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" }];
+      const currentPages = [
+        { id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" },
+        { 
+          id: "page-2", 
+          last_edited_time: "2025-01-02T00:00:00.000Z",
+          properties: {
+            Name: "New Page Title",
+            Status: "Draft",
+            Priority: 1,
+            Tags: ["new", "important"]
+          }
+        },
+      ];
+
+      const result = differ.detectPageChanges(
+        previousPages,
+        currentPages,
+        databaseId,
+        databaseName,
+      );
+
+      expect(result.changes).toHaveLength(1);
+      expect(result.changes[0]).toMatchObject({
+        id: "page-2",
+        title: "New Page Title", // Nameプロパティから取得
+        changeType: "added",
+        last_edited_time: "2025-01-02T00:00:00.000Z",
+        initialProperties: {
+          Name: "New Page Title",
+          Status: "Draft", 
+          Priority: 1,
+          Tags: ["new", "important"]
+        }
+      });
+      expect(result.summary.added).toBe(1);
+    });
+
     it("削除されたページを正しく検出する", () => {
       const previousPages = [
         { id: "page-1", last_edited_time: "2025-01-01T00:00:00.000Z" },
@@ -172,6 +211,51 @@ describe("NotionDiffer", () => {
       expect(result.changes[0]).toEqual({
         id: "page-2",
         title: "page-2",
+        changeType: "deleted",
+        last_edited_time: "2025-01-02T00:00:00.000Z",
+      });
+      expect(result.summary.deleted).toBe(1);
+    });
+
+    it("削除されたページのNameプロパティを使用してタイトルを表示する", () => {
+      const previousPages = [
+        { 
+          id: "page-1", 
+          last_edited_time: "2025-01-01T00:00:00.000Z",
+          properties: {
+            Name: "重要なタスク",
+            Status: "完了"
+          }
+        },
+        { 
+          id: "page-2", 
+          last_edited_time: "2025-01-02T00:00:00.000Z",
+          properties: {
+            Name: "削除されたページ",
+            Description: "このページは削除されました"
+          }
+        },
+      ];
+      const currentPages = [{ 
+        id: "page-1", 
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+        properties: {
+          Name: "重要なタスク",
+          Status: "完了"
+        }
+      }];
+
+      const result = differ.detectPageChanges(
+        previousPages,
+        currentPages,
+        databaseId,
+        databaseName,
+      );
+
+      expect(result.changes).toHaveLength(1);
+      expect(result.changes[0]).toEqual({
+        id: "page-2",
+        title: "削除されたページ", // Nameプロパティから取得
         changeType: "deleted",
         last_edited_time: "2025-01-02T00:00:00.000Z",
       });

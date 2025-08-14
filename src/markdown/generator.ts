@@ -155,11 +155,23 @@ export class MarkdownGenerator {
     let item = `- ${this.formatPageLink(page)}`;
 
     if (options.includeTimestamps) {
-      item += ` (最終編集: ${page.last_edited_time}`;
+      item += ` (${this.formatTimestamp(page.last_edited_time)}`;
       if (page.previous_time) {
-        item += `, 前回: ${page.previous_time}`;
+        item += `, 前回: ${this.formatTimestamp(page.previous_time)}`;
       }
       item += ")";
+    }
+
+    // 追加されたページの初期プロパティを表示
+    if (page.changeType === "added" && page.initialProperties && Object.keys(page.initialProperties).length > 0) {
+      item += "\n\n  **初期プロパティ:**\n";
+      item += "  | プロパティ名 | 設定値 |\n";
+      item += "  |---|---|\n";
+      Object.entries(page.initialProperties).forEach(([propertyName, value]) => {
+        const formattedValue = this.formatPropertyValueForTable(value);
+        item += `  | **${propertyName}** | ${formattedValue} |\n`;
+      });
+      item = item.trimEnd(); // 末尾の改行を削除
     }
 
     // プロパティ変更がある場合は詳細を表示
@@ -278,6 +290,17 @@ export class MarkdownGenerator {
     }
     
     return changes.join(", ");
+  }
+
+  formatTimestamp(isoString: string): string {
+    const date = new Date(isoString);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const hours = String(date.getUTCHours()).padStart(2, "0");
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
   }
 
   private escapeMarkdown(text: string): string {

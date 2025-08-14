@@ -110,8 +110,8 @@ describe("MarkdownGenerator", () => {
       const options: GenerationOptions = { includeTimestamps: true };
       const result = generator.generateDatabaseMarkdown(changes, options);
 
-      expect(result).toContain("最終編集: 2025-01-02T12:00:00.000Z");
-      expect(result).toContain("前回: 2025-01-01T00:00:00.000Z");
+      expect(result).toContain("2025-01-02 12:00");
+      expect(result).toContain("前回: 2025-01-01 00:00");
     });
   });
 
@@ -254,6 +254,29 @@ describe("MarkdownGenerator", () => {
 
       expect(result).toContain("### Changed Database");
       expect(result).not.toContain("### Unchanged Database");
+    });
+  });
+
+  describe("formatTimestamp", () => {
+    it("ISO日時をシンプルな形式にフォーマットする", () => {
+      const timestamp = "2025-01-02T12:00:00.000Z";
+      const result = generator.formatTimestamp(timestamp);
+      
+      expect(result).toBe("2025-01-02 12:00");
+    });
+
+    it("異なる時刻の日時をフォーマットする", () => {
+      const timestamp = "2025-08-14T09:15:30.123Z";
+      const result = generator.formatTimestamp(timestamp);
+      
+      expect(result).toBe("2025-08-14 09:15");
+    });
+
+    it("日本時間の日時をフォーマットする", () => {
+      const timestamp = "2025-12-31T23:45:00.000Z";
+      const result = generator.formatTimestamp(timestamp);
+      
+      expect(result).toBe("2025-12-31 23:45");
     });
   });
 
@@ -782,6 +805,65 @@ describe("MarkdownGenerator", () => {
       expect(result).toContain("| **RemovedRelation** |");
       expect(result).toContain("2件追加"); // 追加されたリレーション数
       expect(result).toContain("1件削除"); // 削除されたリレーション数
+    });
+
+    it("追加されたページのプロパティを表示する", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test Database",
+        changes: [
+          {
+            id: "page-1",
+            title: "New Task",
+            changeType: "added",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            initialProperties: {
+              Name: "New Task",
+              Status: "Todo",
+              Priority: 2,
+              Assignee: "John Doe"
+            }
+          }
+        ],
+        summary: { added: 1, updated: 0, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      expect(result).toContain("**初期プロパティ:**");
+      expect(result).toContain("| プロパティ名 | 設定値 |");
+      expect(result).toContain("| **Name** | \"New Task\" |");
+      expect(result).toContain("| **Status** | \"Todo\" |");
+      expect(result).toContain("| **Priority** | `2` |");
+      expect(result).toContain("| **Assignee** | \"John Doe\" |");
+    });
+
+    it("追加されたページでリレーションプロパティを適切に表示する", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1", 
+        databaseName: "Test Database",
+        changes: [
+          {
+            id: "page-1",
+            title: "Task with Relations",
+            changeType: "added",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            initialProperties: {
+              Name: "Task with Relations",
+              RelatedPages: ["1d1a2a12-137b-810d-b042-fcf5dc155cb8", "1d1a2a12-137b-811a-9114-d1857b1a09f3"],
+              Tags: ["urgent", "review"]
+            }
+          }
+        ],
+        summary: { added: 1, updated: 0, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      expect(result).toContain("**初期プロパティ:**");
+      expect(result).toContain("| **RelatedPages** | リレーション 2件 |");
+      expect(result).toContain("| **Tags** | [urgent, review] |");
+      expect(result).not.toContain("1d1a2a12-137b-810d-b042-fcf5dc155cb8");
     });
   });
 });
