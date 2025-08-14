@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Client } from '@notionhq/client';
 import { DatabaseConfigManager } from "../../src/config/database-config-manager";
 import { MultiDatabaseManager } from "../../src/config/multi-database-manager";
 import { NotionClient } from "../../src/notion/client";
@@ -16,10 +17,25 @@ const MockedNotionClient = vi.mocked(NotionClient);
 const MockedNotionDatabase = vi.mocked(NotionDatabase);
 const MockedStateManager = vi.mocked(StateManager);
 
+import type { DatabasesConfig } from "../../src/config/database-config-manager";
+
+type MockedDatabaseConfigManagerType = {
+  loadConfig: vi.Mock<[], Promise<DatabasesConfig>>;
+  getEnabledDatabases: vi.Mock<[], Promise<DatabaseConfig[]>>;
+  getDatabaseById: vi.Mock<[string], Promise<DatabaseConfig | null>>;
+  getAllDatabases: vi.Mock<[], Promise<DatabaseConfig[]>>;
+};
+
+type MockedNotionClientType = {
+  isConnected: vi.Mock<[], boolean>;
+  testConnection: vi.Mock<[], Promise<boolean>>;
+  getClient: vi.Mock<[], Client>;
+};
+
 describe("MultiDatabaseManager", () => {
   let multiManager: MultiDatabaseManager;
-  let mockConfigManager: any;
-  let mockClient: any;
+  let mockConfigManager: MockedDatabaseConfigManagerType;
+  let mockClient: MockedNotionClientType;
   const mockDatabases = [
     { id: "db-1", name: "DB 1", description: "desc1", enabled: true },
     { id: "db-2", name: "DB 2", description: "desc2", enabled: true },
@@ -31,8 +47,8 @@ describe("MultiDatabaseManager", () => {
 
     // モッククライアントの設定
     mockClient = {
-      isConnected: vi.fn().mockReturnValue(true),
-      testConnection: vi.fn().mockResolvedValue(true),
+      isConnected: vi.fn<[], boolean>().mockReturnValue(true),
+      testConnection: vi.fn<[], Promise<boolean>>().mockResolvedValue(true),
       getClient: vi.fn().mockReturnValue({
         databases: {
           retrieve: vi.fn(),
@@ -44,10 +60,10 @@ describe("MultiDatabaseManager", () => {
 
     // モック設定マネージャーの設定
     mockConfigManager = {
-      loadConfig: vi.fn().mockResolvedValue({ databases: mockDatabases }),
-      getEnabledDatabases: vi.fn().mockResolvedValue(mockDatabases.filter((db) => db.enabled)),
-      getDatabaseById: vi.fn(),
-      getAllDatabases: vi.fn().mockResolvedValue(mockDatabases),
+      loadConfig: vi.fn<[], Promise<DatabasesConfig>>().mockResolvedValue({ databases: mockDatabases }),
+      getEnabledDatabases: vi.fn<[], Promise<DatabaseConfig[]>>().mockResolvedValue(mockDatabases.filter((db) => db.enabled)),
+      getDatabaseById: vi.fn<[string], Promise<DatabaseConfig | null>>(),
+      getAllDatabases: vi.fn<[], Promise<DatabaseConfig[]>>().mockResolvedValue(mockDatabases),
     };
     MockedDatabaseConfigManager.mockImplementation(() => mockConfigManager);
 
@@ -177,8 +193,8 @@ describe("MultiDatabaseManager", () => {
       const mockDb1 = { getDatabaseInfo: vi.fn().mockResolvedValue(mockDbInfo1) };
       const mockDb2 = { getDatabaseInfo: vi.fn().mockResolvedValue(mockDbInfo2) };
 
-      MockedNotionDatabase.mockImplementationOnce(() => mockDb1 as any).mockImplementationOnce(
-        () => mockDb2 as any,
+      MockedNotionDatabase.mockImplementationOnce(() => mockDb1 as NotionDatabase).mockImplementationOnce(
+        () => mockDb2 as NotionDatabase,
       );
 
       const result = await multiManager.getAllDatabaseInfo();
@@ -195,8 +211,8 @@ describe("MultiDatabaseManager", () => {
       const mockDb1 = { getDatabaseInfo: vi.fn().mockResolvedValue(mockDbInfo1) };
       const mockDb2 = { getDatabaseInfo: vi.fn().mockResolvedValue(null) };
 
-      MockedNotionDatabase.mockImplementationOnce(() => mockDb1 as any).mockImplementationOnce(
-        () => mockDb2 as any,
+      MockedNotionDatabase.mockImplementationOnce(() => mockDb1 as NotionDatabase).mockImplementationOnce(
+        () => mockDb2 as NotionDatabase,
       );
 
       const result = await multiManager.getAllDatabaseInfo();

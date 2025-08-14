@@ -6,7 +6,7 @@ export interface DatabaseState {
   pages: Array<{
     id: string;
     last_edited_time: string;
-    [key: string]: any;
+    properties?: Record<string, unknown>;
   }>;
 }
 
@@ -38,8 +38,8 @@ export class StateManager {
     try {
       const data = await fs.readFile(this.stateFilePath, "utf-8");
       return JSON.parse(data) as DatabaseState;
-    } catch (error: any) {
-      if (error.code === "ENOENT") {
+    } catch (error: unknown) {
+      if (error instanceof Error && (error as NodeJS.ErrnoException).code === "ENOENT") {
         return null;
       }
 
@@ -64,8 +64,8 @@ export class StateManager {
   async deleteState(): Promise<void> {
     try {
       await fs.unlink(this.stateFilePath);
-    } catch (error: any) {
-      if (error.code !== "ENOENT") {
+    } catch (error: unknown) {
+      if (error instanceof Error && (error as NodeJS.ErrnoException).code !== "ENOENT") {
         throw error;
       }
     }

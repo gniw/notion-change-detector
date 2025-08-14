@@ -63,8 +63,8 @@ describe("DatabaseConfigManager", () => {
     });
 
     it("設定ファイルが存在しない場合はエラーを投げる", async () => {
-      const notFoundError = new Error("ENOENT: no such file or directory");
-      (notFoundError as any).code = "ENOENT";
+      const notFoundError = new Error("ENOENT: no such file or directory") as NodeJS.ErrnoException;
+      notFoundError.code = "ENOENT";
       mockedFs.readFile.mockRejectedValue(notFoundError);
 
       await expect(configManager.loadConfig()).rejects.toThrow("設定ファイルが見つかりません");

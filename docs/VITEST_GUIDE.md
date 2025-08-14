@@ -78,6 +78,28 @@ const mockFn = vi.fn().mockImplementation((name: string) => {
 console.log(mockFn('World')) // 'Hello, World!'
 ```
 
+#### 5. 型安全なモック関数の定義
+TypeScriptでvi.fn()の型を明示的に指定
+
+```typescript
+// ジェネリクスで引数と戻り値の型を指定
+const mockFn = vi.fn<[string, number], Promise<string>>()
+
+// より具体的な例
+const mockLoadConfig = vi.fn<[], Promise<DatabasesConfig>>()
+  .mockResolvedValue({ databases: [] })
+
+const mockGetById = vi.fn<[string], Promise<User | null>>()
+  .mockImplementation((id) => Promise.resolve({ id, name: 'Test User' }))
+```
+
+**型定義の構文**:
+```typescript
+vi.Mock<Parameters, ReturnType>
+// Parameters: 引数の型（配列で指定）
+// ReturnType: 戻り値の型
+```
+
 **このプロジェクトでの使用例**:
 ```typescript
 // Notion API の users.me() メソッドをモック
@@ -85,6 +107,13 @@ mockUsersMe = vi.fn().mockResolvedValue({
   object: 'user', 
   id: 'test-user-id' 
 })
+
+// 型安全なモックオブジェクトの定義
+type MockedNotionClient = {
+  isConnected: vi.Mock<[], boolean>;
+  testConnection: vi.Mock<[], Promise<boolean>>;
+  getClient: vi.Mock<[], Client>;
+};
 ```
 
 **なぜ使うのか**:

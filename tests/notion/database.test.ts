@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Client } from '@notionhq/client';
 import { NotionClient } from "../../src/notion/client";
 import { NotionDatabase } from "../../src/notion/database";
 
@@ -8,7 +9,11 @@ const MockedNotionClient = vi.mocked(NotionClient);
 
 describe("NotionDatabase", () => {
   let notionDatabase: NotionDatabase;
-  let mockClient: any;
+  let mockClient: {
+    isConnected: vi.Mock<[], boolean>;
+    testConnection: vi.Mock<[], Promise<boolean>>;
+    getClient: vi.Mock<[], Client>;
+  };
   const mockDatabaseId = "test-database-id-123";
 
   beforeEach(() => {

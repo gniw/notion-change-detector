@@ -1,3 +1,4 @@
+import type { DatabaseObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { NotionClient } from "../notion/client";
 import { NotionDatabase } from "../notion/database";
 import { StateManager } from "../storage/state-manager";
@@ -5,7 +6,7 @@ import { type DatabaseConfig, DatabaseConfigManager } from "./database-config-ma
 
 export interface DatabaseInfo {
   config: DatabaseConfig;
-  info: any | null;
+  info: DatabaseObjectResponse | null;
 }
 
 export class MultiDatabaseManager {

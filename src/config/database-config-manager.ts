@@ -31,8 +31,8 @@ export class DatabaseConfigManager {
       this.cachedConfig = config;
 
       return config;
-    } catch (error: any) {
-      if (error.code === "ENOENT") {
+    } catch (error: unknown) {
+      if (error instanceof Error && (error as NodeJS.ErrnoException).code === "ENOENT") {
         throw new Error("設定ファイルが見つかりません");
       }
 
@@ -44,7 +44,7 @@ export class DatabaseConfigManager {
     }
   }
 
-  private validateConfig(config: any): void {
+  private validateConfig(config: unknown): void {
     if (!config || typeof config !== "object") {
       throw new Error("設定ファイルの形式が不正です");
     }

@@ -22,7 +22,7 @@ describe("NotionClient", () => {
           users: {
             me: mockUsersMe,
           },
-        }) as any,
+        }) as NotionClient,
     );
   });
 

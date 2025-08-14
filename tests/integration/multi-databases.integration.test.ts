@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 // .env.local ファイルを明示的に読み込み
 dotenv.config({ path: ".env.local" });
@@ -151,7 +152,7 @@ async function testMultiDatabases() {
 }
 
 // ページタイトル抽出のヘルパー関数
-function extractPageTitle(page: any): string {
+function extractPageTitle(page: PageObjectResponse): string {
   if (!page.properties) return "タイトル不明";
 
   // よくあるタイトルプロパティ名を順番に確認
@@ -166,8 +167,8 @@ function extractPageTitle(page: any): string {
 
   // 最初に見つかったタイトル型プロパティを使用
   const firstTitleProp = Object.values(page.properties).find(
-    (prop: any) => prop.type === "title" && prop.title?.[0]?.plain_text,
-  ) as any;
+    (prop) => prop.type === "title" && 'title' in prop && prop.title?.[0]?.plain_text,
+  ) as Extract<PageObjectResponse['properties'][string], { type: 'title' }> | undefined;
 
   return firstTitleProp?.title?.[0]?.plain_text || "タイトル不明";
 }

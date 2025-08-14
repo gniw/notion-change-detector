@@ -20,7 +20,7 @@ export interface DatabaseChanges {
 interface SimplePage {
   id: string;
   last_edited_time: string;
-  properties?: any;
+  properties?: Record<string, unknown>;
 }
 
 export class NotionDiffer {
@@ -91,7 +91,7 @@ export class NotionDiffer {
     return this.hasPropertiesChanged(previousPage.properties, currentPage.properties);
   }
 
-  private hasPropertiesChanged(previousProps: any, currentProps: any): boolean {
+  private hasPropertiesChanged(previousProps: Record<string, unknown> | undefined, currentProps: Record<string, unknown> | undefined): boolean {
     // 両方ともプロパティがない場合は変更なし
     if (!previousProps && !currentProps) {
       return false;

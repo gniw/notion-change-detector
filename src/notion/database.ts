@@ -1,3 +1,8 @@
+import type { 
+  DatabaseObjectResponse, 
+  QueryDatabaseParameters, 
+  QueryDatabaseResponse 
+} from '@notionhq/client/build/src/api-endpoints';
 import type { NotionClient } from "./client";
 
 export class NotionDatabase {
@@ -15,7 +20,7 @@ export class NotionDatabase {
     this.databaseId = id;
   }
 
-  async getDatabaseInfo() {
+  async getDatabaseInfo(): Promise<DatabaseObjectResponse | null> {
     try {
       const database = await this.client.getClient().databases.retrieve({
         database_id: this.databaseId,
@@ -26,13 +31,13 @@ export class NotionDatabase {
     }
   }
 
-  async getPages(options?: { filter?: any }) {
+  async getPages(options?: Pick<QueryDatabaseParameters, 'filter'>): Promise<QueryDatabaseResponse['results']> {
     try {
-      const allPages: any[] = [];
+      const allPages: QueryDatabaseResponse['results'] = [];
       let cursor: string | undefined;
 
       do {
-        const queryParams: any = {
+        const queryParams: QueryDatabaseParameters = {
           database_id: this.databaseId,
         };
 
@@ -47,7 +52,7 @@ export class NotionDatabase {
         const response = await this.client.getClient().databases.query(queryParams);
 
         allPages.push(...response.results);
-        cursor = response.has_more ? response.next_cursor : undefined;
+        cursor = response.has_more ? response.next_cursor || undefined : undefined;
       } while (cursor);
 
       return allPages;

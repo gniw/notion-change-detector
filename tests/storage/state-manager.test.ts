@@ -90,8 +90,8 @@ describe("StateManager", () => {
     });
 
     it("ファイルが存在しない場合はnullを返す", async () => {
-      const notFoundError = new Error("ENOENT: no such file or directory");
-      (notFoundError as any).code = "ENOENT";
+      const notFoundError = new Error("ENOENT: no such file or directory") as NodeJS.ErrnoException;
+      notFoundError.code = "ENOENT";
       mockedFs.readFile.mockRejectedValue(notFoundError);
 
       const result = await stateManager.loadState();
@@ -127,8 +127,8 @@ describe("StateManager", () => {
     });
 
     it("状態ファイルが存在しない場合はfalseを返す", async () => {
-      const notFoundError = new Error("ENOENT");
-      (notFoundError as any).code = "ENOENT";
+      const notFoundError = new Error("ENOENT") as NodeJS.ErrnoException;
+      notFoundError.code = "ENOENT";
       mockedFs.access.mockRejectedValue(notFoundError);
 
       const result = await stateManager.hasState();
@@ -157,8 +157,8 @@ describe("StateManager", () => {
     });
 
     it("ファイルが存在しない場合でもエラーにならない", async () => {
-      const notFoundError = new Error("ENOENT");
-      (notFoundError as any).code = "ENOENT";
+      const notFoundError = new Error("ENOENT") as NodeJS.ErrnoException;
+      notFoundError.code = "ENOENT";
       mockedFs.unlink.mockRejectedValue(notFoundError);
 
       await expect(stateManager.deleteState()).resolves.not.toThrow();
