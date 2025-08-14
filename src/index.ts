@@ -5,6 +5,7 @@ import { MultiDatabaseManager } from "./config/multi-database-manager";
 import { MarkdownGenerator } from "./markdown/generator";
 import type { DatabaseChanges } from "./notion/differ";
 import { NotionDiffer } from "./notion/differ";
+import { PropertyExtractor } from "./notion/property-extractor";
 
 // 環境変数を読み込み
 config({ path: ".env.local" });
@@ -18,6 +19,7 @@ async function generateNotionChangeReport() {
     const manager = new MultiDatabaseManager();
     const differ = new NotionDiffer();
     const markdownGen = new MarkdownGenerator();
+    const propertyExtractor = new PropertyExtractor();
 
     console.log("📊 データベース情報を取得中...");
     const databaseInfos = await manager.getAllDatabaseInfo();
@@ -47,9 +49,16 @@ async function generateNotionChangeReport() {
       const previousState = await stateManager.loadState();
       const previousPages = previousState ? previousState.pages : [];
 
+      // currentPagesのプロパティを抽出して統一したフォーマットにする
+      const currentSimplifiedPages = currentPages.map((page) => ({
+        id: page.id,
+        last_edited_time: page.last_edited_time,
+        properties: propertyExtractor.extractProperties(page),
+      }));
+
       const changes = differ.detectPageChanges(
         previousPages,
-        currentPages,
+        currentSimplifiedPages,
         dbInfo.config.id,
         dbInfo.config.name,
       );
@@ -60,13 +69,10 @@ async function generateNotionChangeReport() {
         `  📈 変更: +${changes.summary.added} ~${changes.summary.updated} -${changes.summary.deleted}`,
       );
 
-      // 今回の状態を保存
+      // 今回の状態を保存（プロパティ情報を含む）
       await stateManager.saveState({
         lastSync: new Date().toISOString(),
-        pages: currentPages.map((page) => ({
-          id: page.id,
-          last_edited_time: page.last_edited_time,
-        })),
+        pages: currentSimplifiedPages,
       });
     }
 

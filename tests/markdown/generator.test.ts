@@ -493,4 +493,295 @@ describe("MarkdownGenerator", () => {
       expect(path.basename(savedFilePath)).toMatch(/^daily-report-\d{4}-\d{2}-\d{2}-\d{6}\.md$/);
     });
   });
+
+  describe("property change display", () => {
+    it("プロパティ変更をテーブル形式で表示する", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test Database",
+        changes: [
+          {
+            id: "page-1",
+            title: "test_property",
+            changeType: "updated",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            previous_time: "2025-01-01T00:00:00.000Z",
+            propertyChanges: [
+              {
+                propertyName: "Description",
+                previousValue: "テスト",
+                currentValue: "test"
+              }
+            ]
+          }
+        ],
+        summary: { added: 0, updated: 1, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      expect(result).toContain("**変更されたプロパティ:**");
+      expect(result).toContain("| プロパティ名 | 変更前 | 変更後 |");
+      expect(result).toContain("|---|---|---|");
+      expect(result).toContain("| **Description** | \"テスト\" | \"test\" |");
+    });
+
+    it("複数のプロパティ変更をテーブル形式で表示する", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1", 
+        databaseName: "Test Database",
+        changes: [
+          {
+            id: "page-1",
+            title: "Multi Property Page",
+            changeType: "updated",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            previous_time: "2025-01-01T00:00:00.000Z",
+            propertyChanges: [
+              {
+                propertyName: "Status",
+                previousValue: "Draft",
+                currentValue: "Published"
+              },
+              {
+                propertyName: "Priority", 
+                previousValue: 1,
+                currentValue: 3
+              },
+              {
+                propertyName: "Tags",
+                previousValue: ["old-tag"],
+                currentValue: ["new-tag", "updated"]
+              }
+            ]
+          }
+        ],
+        summary: { added: 0, updated: 1, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      expect(result).toContain("| **Status** | \"Draft\" | \"Published\" |");
+      expect(result).toContain("| **Priority** | `1` | `3` |");
+      expect(result).toContain("| **Tags** | [old-tag] | [new-tag, updated] |");
+    });
+
+    it("未設定値と空文字を適切に表示する", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test Database", 
+        changes: [
+          {
+            id: "page-1",
+            title: "Empty Values Page",
+            changeType: "updated",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            propertyChanges: [
+              {
+                propertyName: "NewField",
+                previousValue: undefined,
+                currentValue: "設定済み"
+              },
+              {
+                propertyName: "EmptyField",
+                previousValue: "内容あり",
+                currentValue: ""
+              },
+              {
+                propertyName: "NullField", 
+                previousValue: "値あり",
+                currentValue: null
+              }
+            ]
+          }
+        ],
+        summary: { added: 0, updated: 1, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      expect(result).toContain("| **NewField** | *(未設定)* | \"設定済み\" |");
+      expect(result).toContain("| **EmptyField** | \"内容あり\" | *(空文字)* |");
+      expect(result).toContain("| **NullField** | \"値あり\" | *(未設定)* |");
+    });
+
+    it("長い文字列を省略表示する", () => {
+      const longText = "これは非常に長いテキストです。".repeat(10); // 100文字を超える
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test Database",
+        changes: [
+          {
+            id: "page-1", 
+            title: "Long Text Page",
+            changeType: "updated",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            propertyChanges: [
+              {
+                propertyName: "LongText",
+                previousValue: "短いテキスト",
+                currentValue: longText
+              }
+            ]
+          }
+        ],
+        summary: { added: 0, updated: 1, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      expect(result).toContain("\"短いテキスト\"");
+      expect(result).toContain("...");  // 省略記号があること
+      expect(result).not.toContain(longText); // 完全な長いテキストは含まれない
+    });
+
+    it("配列の要素が多い場合は省略表示する", () => {
+      const manyItems = Array.from({length: 10}, (_, i) => `item${i + 1}`);
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test Database",
+        changes: [
+          {
+            id: "page-1",
+            title: "Many Items Page", 
+            changeType: "updated",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            propertyChanges: [
+              {
+                propertyName: "ManyTags",
+                previousValue: ["tag1", "tag2"],
+                currentValue: manyItems
+              }
+            ]
+          }
+        ],
+        summary: { added: 0, updated: 1, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      expect(result).toContain("[tag1, tag2]");
+      expect(result).toContain("...] (10項目)");  // 省略表示
+    });
+
+    it("プロパティ変更がない場合は詳細テーブルを表示しない", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test Database",
+        changes: [
+          {
+            id: "page-1",
+            title: "No Changes Page",
+            changeType: "updated",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            previous_time: "2025-01-01T00:00:00.000Z"
+            // propertyChanges なし
+          }
+        ],
+        summary: { added: 0, updated: 1, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      expect(result).not.toContain("**変更されたプロパティ:**");
+      expect(result).not.toContain("| プロパティ名 | 変更前 | 変更後 |");
+    });
+
+    it("generateFullMarkdownでもプロパティ変更詳細を表示する", () => {
+      const changes: DatabaseChanges[] = [
+        {
+          databaseId: "db-1",
+          databaseName: "Test Database",
+          changes: [
+            {
+              id: "page-1",
+              title: "Updated Page",
+              changeType: "updated",
+              last_edited_time: "2025-01-02T00:00:00.000Z",
+              previous_time: "2025-01-01T00:00:00.000Z",
+              propertyChanges: [
+                {
+                  propertyName: "Status",
+                  previousValue: "Draft", 
+                  currentValue: "Published"
+                }
+              ]
+            }
+          ],
+          summary: { added: 0, updated: 1, deleted: 0 },
+        }
+      ];
+
+      const result = generator.generateFullMarkdown(changes, { includeTimestamps: true });
+
+      expect(result).toContain("**変更されたプロパティ:**");
+      expect(result).toContain("| **Status** | \"Draft\" | \"Published\" |");
+    });
+
+    it("リレーションプロパティの変更を意味のある形で表示する", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1",
+        databaseName: "Test Database",
+        changes: [
+          {
+            id: "page-1",
+            title: "Relation Test Page",
+            changeType: "updated",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            propertyChanges: [
+              {
+                propertyName: "RelatedPages",
+                previousValue: ["1d1a2a12-137b-810d-b042-fcf5dc155cb8", "1d1a2a12-137b-811a-9114-d1857b1a09f3"],
+                currentValue: ["1d1a2a12-137b-810d-b042-fcf5dc155cb8", "1d1a2a12-137b-812b-9b0a-f3ad936d98ba"]
+              }
+            ]
+          }
+        ],
+        summary: { added: 0, updated: 1, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      // ページIDではなく、リレーション変更の概要を表示
+      expect(result).toContain("**変更されたプロパティ:**");
+      expect(result).toContain("| **RelatedPages** |");
+      expect(result).not.toContain("1d1a2a12-137b-810d-b042-fcf5dc155cb8"); // ページIDを直接表示しない
+      expect(result).toContain("リレーション"); // リレーション変更であることを示す
+    });
+
+    it("リレーションプロパティの追加・削除を適切に表示する", () => {
+      const changes: DatabaseChanges = {
+        databaseId: "db-1", 
+        databaseName: "Test Database",
+        changes: [
+          {
+            id: "page-1",
+            title: "Relation Change Page",
+            changeType: "updated",
+            last_edited_time: "2025-01-02T00:00:00.000Z",
+            propertyChanges: [
+              {
+                propertyName: "NewRelation",
+                previousValue: [],
+                currentValue: ["1d1a2a12-137b-810d-b042-fcf5dc155cb8", "1d1a2a12-137b-811a-9114-d1857b1a09f3"]
+              },
+              {
+                propertyName: "RemovedRelation",
+                previousValue: ["1d1a2a12-137b-812b-9b0a-f3ad936d98ba"],
+                currentValue: []
+              }
+            ]
+          }
+        ],
+        summary: { added: 0, updated: 1, deleted: 0 },
+      };
+
+      const result = generator.generateDatabaseMarkdown(changes);
+
+      expect(result).toContain("| **NewRelation** |");
+      expect(result).toContain("| **RemovedRelation** |");
+      expect(result).toContain("2件追加"); // 追加されたリレーション数
+      expect(result).toContain("1件削除"); // 削除されたリレーション数
+    });
+  });
 });

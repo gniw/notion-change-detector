@@ -106,19 +106,19 @@ export class MarkdownGenerator {
         const addedPages = db.changes.filter((c) => c.changeType === "added");
         if (addedPages.length > 0) {
           sections.push(`#### 📝 追加されたページ (${addedPages.length}件)`);
-          sections.push(addedPages.map((page) => `- ${this.formatPageLink(page)}`).join("\n"));
+          sections.push(addedPages.map((page) => this.formatPageItem(page, options)).join("\n"));
         }
 
         const updatedPages = db.changes.filter((c) => c.changeType === "updated");
         if (updatedPages.length > 0) {
           sections.push(`#### 🔄 更新されたページ (${updatedPages.length}件)`);
-          sections.push(updatedPages.map((page) => `- ${this.formatPageLink(page)}`).join("\n"));
+          sections.push(updatedPages.map((page) => this.formatPageItem(page, options)).join("\n"));
         }
 
         const deletedPages = db.changes.filter((c) => c.changeType === "deleted");
         if (deletedPages.length > 0) {
           sections.push(`#### 🗑️ 削除されたページ (${deletedPages.length}件)`);
-          sections.push(deletedPages.map((page) => `- ${this.formatPageLink(page)}`).join("\n"));
+          sections.push(deletedPages.map((page) => this.formatPageItem(page, options)).join("\n"));
         }
       });
     }
@@ -162,7 +162,122 @@ export class MarkdownGenerator {
       item += ")";
     }
 
+    // プロパティ変更がある場合は詳細を表示
+    if (page.propertyChanges && page.propertyChanges.length > 0) {
+      item += "\n\n  **変更されたプロパティ:**\n";
+      item += "  | プロパティ名 | 変更前 | 変更後 |\n";
+      item += "  |---|---|---|\n";
+      page.propertyChanges.forEach(change => {
+        const previousText = this.formatPropertyValueForTable(change.previousValue);
+        const currentText = this.formatPropertyValueForTable(change.currentValue);
+        
+        // リレーションプロパティの場合は詳細な変更情報を追加
+        if (Array.isArray(change.previousValue) && Array.isArray(change.currentValue) &&
+            (this.isRelationArray(change.previousValue) || this.isRelationArray(change.currentValue))) {
+          const relationDiff = this.getRelationDiff(change.previousValue, change.currentValue);
+          const diffText = relationDiff ? ` (${relationDiff})` : '';
+          item += `  | **${change.propertyName}** | ${previousText} | ${currentText}${diffText} |\n`;
+        } else {
+          item += `  | **${change.propertyName}** | ${previousText} | ${currentText} |\n`;
+        }
+      });
+      item = item.trimEnd(); // 末尾の改行を削除
+    }
+
     return item;
+  }
+
+  private formatPropertyValue(value: unknown): string {
+    if (value === undefined || value === null) {
+      return "(未設定)";
+    }
+    
+    if (Array.isArray(value)) {
+      if (value.length === 0) {
+        return "[]";
+      }
+      return `[${value.map(v => String(v)).join(", ")}]`;
+    }
+    
+    if (typeof value === "string") {
+      return value === "" ? "(空文字)" : `"${value}"`;
+    }
+    
+    return String(value);
+  }
+
+  private formatPropertyValueForTable(value: unknown): string {
+    if (value === undefined || value === null) {
+      return "*(未設定)*";
+    }
+    
+    if (Array.isArray(value)) {
+      if (value.length === 0) {
+        return "*[]* (空配列)";
+      }
+      
+      // リレーションプロパティ（ページIDの配列）かどうかを判定
+      if (this.isRelationArray(value)) {
+        return `リレーション ${value.length}件`;
+      }
+      
+      // 通常の配列処理
+      const items = value.map(v => String(v));
+      const joinedItems = items.join(", ");
+      if (joinedItems.length > 50) {
+        return `[${items.slice(0, 3).join(", ")}...] (${items.length}項目)`;
+      }
+      return `[${joinedItems}]`;
+    }
+    
+    if (typeof value === "string") {
+      if (value === "") {
+        return "*(空文字)*";
+      }
+      // 長い文字列は省略表示
+      const escapedValue = this.escapeMarkdown(value);
+      if (escapedValue.length > 100) {
+        return `"${escapedValue.substring(0, 97)}..."`;
+      }
+      return `"${escapedValue}"`;
+    }
+    
+    if (typeof value === "number" || typeof value === "boolean") {
+      return `\`${value}\``;
+    }
+    
+    // その他の型（オブジェクトなど）
+    const stringValue = String(value);
+    if (stringValue.length > 50) {
+      return `${stringValue.substring(0, 47)}...`;
+    }
+    return stringValue;
+  }
+
+  private isRelationArray(array: unknown[]): boolean {
+    // すべての要素がページID形式（UUID形式の文字列）かどうかをチェック
+    return array.length > 0 && array.every(item => 
+      typeof item === 'string' && 
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item)
+    );
+  }
+
+  private getRelationDiff(previousValue: unknown[], currentValue: unknown[]): string {
+    const prevSet = new Set(previousValue.map(v => String(v)));
+    const currSet = new Set(currentValue.map(v => String(v)));
+    
+    const added = [...currSet].filter(id => !prevSet.has(id));
+    const removed = [...prevSet].filter(id => !currSet.has(id));
+    
+    const changes: string[] = [];
+    if (added.length > 0) {
+      changes.push(`${added.length}件追加`);
+    }
+    if (removed.length > 0) {
+      changes.push(`${removed.length}件削除`);
+    }
+    
+    return changes.join(", ");
   }
 
   private escapeMarkdown(text: string): string {

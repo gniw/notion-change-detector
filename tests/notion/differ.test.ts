@@ -50,13 +50,14 @@ describe("NotionDiffer", () => {
       );
 
       expect(result.changes).toHaveLength(1);
-      expect(result.changes[0]).toEqual({
+      expect(result.changes[0]).toMatchObject({
         id: "page-1",
         title: "page-1",
         changeType: "updated",
         last_edited_time: "2025-01-01T12:00:00.000Z",
         previous_time: "2025-01-01T00:00:00.000Z",
       });
+      expect(result.changes[0].propertyChanges).toEqual([]);
       expect(result.summary.updated).toBe(1);
     });
 
@@ -65,16 +66,16 @@ describe("NotionDiffer", () => {
         id: "page-1",
         last_edited_time: "2025-01-01T00:00:00.000Z",
         properties: {
-          Name: { title: [{ plain_text: "Old Title" }] },
-          Status: { select: { name: "In Progress" } }
+          Name: "Old Title",
+          Status: "In Progress"
         }
       }];
       const currentPages = [{
         id: "page-1",
         last_edited_time: "2025-01-01T00:00:00.000Z", // 同じ時刻
         properties: {
-          Name: { title: [{ plain_text: "New Title" }] }, // タイトル変更
-          Status: { select: { name: "In Progress" } }
+          Name: "New Title", // タイトル変更
+          Status: "In Progress"
         }
       }];
 
@@ -86,12 +87,17 @@ describe("NotionDiffer", () => {
       );
 
       expect(result.changes).toHaveLength(1);
-      expect(result.changes[0]).toEqual({
+      expect(result.changes[0]).toMatchObject({
         id: "page-1",
         title: "New Title", // 新しいタイトルが取得される
         changeType: "updated",
         last_edited_time: "2025-01-01T00:00:00.000Z",
         previous_time: "2025-01-01T00:00:00.000Z",
+        propertyChanges: [{
+          propertyName: "Name",
+          previousValue: "Old Title",
+          currentValue: "New Title"
+        }]
       });
       expect(result.summary.updated).toBe(1);
     });
@@ -101,15 +107,15 @@ describe("NotionDiffer", () => {
         id: "page-1",
         last_edited_time: "2025-01-01T00:00:00.000Z",
         properties: {
-          Name: { title: [{ plain_text: "Test Page" }] }
+          Name: "Test Page"
         }
       }];
       const currentPages = [{
         id: "page-1",
         last_edited_time: "2025-01-01T00:00:00.000Z",
         properties: {
-          Name: { title: [{ plain_text: "Test Page" }] },
-          Status: { select: { name: "New" } } // 新しいプロパティ
+          Name: "Test Page",
+          Status: "New" // 新しいプロパティ
         }
       }];
 
@@ -122,6 +128,13 @@ describe("NotionDiffer", () => {
 
       expect(result.changes).toHaveLength(1);
       expect(result.changes[0].changeType).toBe("updated");
+      expect(result.changes[0]).toMatchObject({
+        propertyChanges: [{
+          propertyName: "Status",
+          previousValue: undefined,
+          currentValue: "New"
+        }]
+      });
       expect(result.summary.updated).toBe(1);
     });
 
@@ -130,8 +143,8 @@ describe("NotionDiffer", () => {
         id: "page-1",
         last_edited_time: "2025-01-01T00:00:00.000Z",
         properties: {
-          Name: { title: [{ plain_text: "Test Page" }] },
-          Status: { select: { name: "Active" } }
+          Name: "Test Page",
+          Status: "Active"
         }
       }];
 
@@ -218,14 +231,12 @@ describe("NotionDiffer", () => {
   });
 
   describe("extractPageTitle", () => {
-    it("Notionページオブジェクトからタイトルを抽出する", () => {
+    it("PropertyExtractor変換後のページからタイトルを抽出する", () => {
       const pageWithTitle = {
         id: "page-1",
         last_edited_time: "2025-01-01T00:00:00.000Z",
         properties: {
-          Name: {
-            title: [{ plain_text: "Test Page Title" }],
-          },
+          Name: "Test Page Title",
         },
       };
 
@@ -238,9 +249,7 @@ describe("NotionDiffer", () => {
         id: "page-1",
         last_edited_time: "2025-01-01T00:00:00.000Z",
         properties: {
-          Title: {
-            title: [{ plain_text: "Another Title" }],
-          },
+          Title: "Another Title",
         },
       };
 
@@ -267,6 +276,91 @@ describe("NotionDiffer", () => {
 
       const title = differ.extractPageTitle(pageWithoutProperties);
       expect(title).toBe("page-no-props");
+    });
+  });
+
+  describe("property change tracking", () => {
+    it("複数のプロパティが変更された場合を検出する", () => {
+      const previousPages = [{
+        id: "page-1",
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+        properties: {
+          Name: "Old Title",
+          Status: "Draft",
+          Priority: 1
+        }
+      }];
+      const currentPages = [{
+        id: "page-1",
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+        properties: {
+          Name: "New Title",
+          Status: "Published", 
+          Priority: 1 // 変更なし
+        }
+      }];
+
+      const result = differ.detectPageChanges(previousPages, currentPages, "db-1", "Test DB");
+      
+      expect(result.changes).toHaveLength(1);
+      expect(result.changes[0].propertyChanges).toEqual([
+        { propertyName: "Name", previousValue: "Old Title", currentValue: "New Title" },
+        { propertyName: "Status", previousValue: "Draft", currentValue: "Published" }
+      ]);
+    });
+
+    it("プロパティが削除された場合を検出する", () => {
+      const previousPages = [{
+        id: "page-1", 
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+        properties: {
+          Name: "Test Page",
+          Status: "Active",
+          TempField: "temporary"
+        }
+      }];
+      const currentPages = [{
+        id: "page-1",
+        last_edited_time: "2025-01-01T00:00:00.000Z", 
+        properties: {
+          Name: "Test Page",
+          Status: "Active"
+          // TempFieldが削除
+        }
+      }];
+
+      const result = differ.detectPageChanges(previousPages, currentPages, "db-1", "Test DB");
+      
+      expect(result.changes).toHaveLength(1);
+      expect(result.changes[0].propertyChanges).toEqual([
+        { propertyName: "TempField", previousValue: "temporary", currentValue: undefined }
+      ]);
+    });
+
+    it("配列プロパティの変更を検出する", () => {
+      const previousPages = [{
+        id: "page-1",
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+        properties: {
+          Name: "Test Page",
+          Tags: ["tag1", "tag2"]
+        }
+      }];
+      const currentPages = [{
+        id: "page-1",
+        last_edited_time: "2025-01-01T00:00:00.000Z",
+        properties: {
+          Name: "Test Page", 
+          Tags: ["tag1", "tag2", "tag3"]
+        }
+      }];
+
+      const result = differ.detectPageChanges(previousPages, currentPages, "db-1", "Test DB");
+      
+      expect(result.changes).toHaveLength(1);
+      expect(result.changes[0].propertyChanges).toEqual([
+        { propertyName: "Tags", previousValue: ["tag1", "tag2"], currentValue: ["tag1", "tag2", "tag3"] }
+      ]);
     });
   });
 

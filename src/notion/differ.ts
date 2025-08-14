@@ -1,9 +1,16 @@
+export interface PropertyChange {
+  propertyName: string;
+  previousValue: unknown;
+  currentValue: unknown;
+}
+
 export interface PageChange {
   id: string;
   title: string;
   changeType: "added" | "updated" | "deleted";
   last_edited_time: string;
   previous_time?: string;
+  propertyChanges?: PropertyChange[];
 }
 
 export interface DatabaseChanges {
@@ -46,12 +53,14 @@ export class NotionDiffer {
           last_edited_time: currentPage.last_edited_time,
         });
       } else if (this.hasPageChanged(previousPage, currentPage)) {
+        const propertyChanges = this.getPropertyChanges(previousPage, currentPage);
         changes.push({
           id: currentPage.id,
           title: this.extractPageTitle(currentPage),
           changeType: "updated",
           last_edited_time: currentPage.last_edited_time,
           previous_time: previousPage.last_edited_time,
+          propertyChanges,
         });
       }
     }
@@ -140,14 +149,13 @@ export class NotionDiffer {
       return page.id;
     }
 
-    const nameProperty = page.properties.Name?.title;
-    if (nameProperty && nameProperty.length > 0 && nameProperty[0].plain_text) {
-      return nameProperty[0].plain_text;
+    // PropertyExtractorで変換された形式では、文字列として格納される
+    if (typeof page.properties.Name === 'string' && page.properties.Name.trim()) {
+      return page.properties.Name;
     }
 
-    const titleProperty = page.properties.Title?.title;
-    if (titleProperty && titleProperty.length > 0 && titleProperty[0].plain_text) {
-      return titleProperty[0].plain_text;
+    if (typeof page.properties.Title === 'string' && page.properties.Title.trim()) {
+      return page.properties.Title;
     }
 
     return page.id;
@@ -159,5 +167,56 @@ export class NotionDiffer {
 
   getTotalChangeCount(changes: DatabaseChanges): number {
     return changes.summary.added + changes.summary.updated + changes.summary.deleted;
+  }
+
+  private getPropertyChanges(previousPage: SimplePage, currentPage: SimplePage): PropertyChange[] {
+    const propertyChanges: PropertyChange[] = [];
+
+    // プロパティがない場合は空配列を返す
+    if (!previousPage.properties && !currentPage.properties) {
+      return propertyChanges;
+    }
+
+    // すべてのプロパティキーを取得（前回と今回の両方）
+    const allPropertyKeys = new Set([
+      ...Object.keys(previousPage.properties || {}),
+      ...Object.keys(currentPage.properties || {}),
+    ]);
+
+    for (const propertyName of allPropertyKeys) {
+      const previousValue = previousPage.properties?.[propertyName];
+      const currentValue = currentPage.properties?.[propertyName];
+
+      // プロパティが変更されているかチェック
+      if (!this.areValuesEqual(previousValue, currentValue)) {
+        propertyChanges.push({
+          propertyName,
+          previousValue,
+          currentValue,
+        });
+      }
+    }
+
+    return propertyChanges;
+  }
+
+  private areValuesEqual(value1: unknown, value2: unknown): boolean {
+    // 両方ともundefinedまたはnullの場合は等しい
+    if ((value1 == null) && (value2 == null)) {
+      return true;
+    }
+
+    // 一方がundefined/nullの場合は異なる
+    if ((value1 == null) !== (value2 == null)) {
+      return false;
+    }
+
+    // JSON文字列で比較（配列やオブジェクトにも対応）
+    try {
+      return JSON.stringify(value1) === JSON.stringify(value2);
+    } catch {
+      // JSON化できない場合は参照比較
+      return value1 === value2;
+    }
   }
 }
