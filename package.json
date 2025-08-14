@@ -1,0 +1,48 @@
+{
+  "name": "notion-change-detector",
+  "version": "1.0.0",
+  "description": "A Node.js script to detect changes in Notion databases",
+  "main": "dist/index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "generate-report": "tsx src/index.ts",
+    "lint": "biome lint src/ tests/",
+    "lint:fix": "biome lint --write src/ tests/",
+    "format": "biome format src/ tests/",
+    "format:fix": "biome format --write src/ tests/",
+    "check": "biome check src/ tests/",
+    "check:fix": "biome check --write src/ tests/",
+    "test:integration": "tsx tests/integration/multi-databases.integration.test.ts",
+    "test:diff-markdown": "tsx tests/integration/diff-and-markdown.integration.test.ts"
+  },
+  "keywords": [
+    "notion",
+    "api",
+    "change-detector",
+    "typescript",
+    "node"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.4",
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.0",
+    "dotenv": "^17.2.1"
+  }
+}
