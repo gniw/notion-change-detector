@@ -141,14 +141,43 @@ jobs:
           
           PR_TITLE="📊 Notion Changes Report (${ENVIRONMENT_UPPER}) - ${DATE}"
           
+          # Collect report contents
+          REPORT_CONTENTS=""
+          if [ -n "$(find reports -name '*.md' 2>/dev/null)" ]; then
+            REPORT_CONTENTS=$(cat <<'REPORT_EOF'
+
+## 📋 Detected Changes
+
+REPORT_EOF
+)
+            
+            # Add each report file's contents
+            for report_file in $(find reports -name "*.md" | head -5); do
+              if [ -f "$report_file" ]; then
+                REPORT_CONTENTS="${REPORT_CONTENTS}
+
+### 📄 $(basename "$report_file")
+
+$(cat "$report_file")
+
+---
+"
+              fi
+            done
+          else
+            REPORT_CONTENTS="
+
+## 📋 Detected Changes
+
+No specific changes detected, but PR was forced via force_pr option.
+"
+          fi
+          
           PR_BODY=$(cat <<EOF
           ## 📊 Notion Database Changes Report
 
           This automated report contains changes detected in the **${{ inputs.environment }}** environment Notion databases.
-
-          ### 📁 Report Files
-          $(find reports -name "*.md" -exec echo "- {}" \; | head -10)
-
+          ${REPORT_CONTENTS}
           ### 🔧 Environment Details
           - **Environment**: ${{ inputs.environment }}
           - **Generated**: ${DATE}
@@ -156,8 +185,8 @@ jobs:
           - **Workflow Run**: [\#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
           ### 📋 Next Steps
-          1. Review the generated markdown reports
-          2. Verify the detected changes are accurate
+          1. Review the detected changes above
+          2. Verify the changes are accurate
           3. Merge this PR when ready
 
           ---
