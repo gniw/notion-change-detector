@@ -112,7 +112,7 @@ jobs:
           fi
           echo "duplicate-check=passed" >> $GITHUB_OUTPUT
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Commit changes
         if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
@@ -175,7 +175,7 @@ jobs:
           echo "pr-url=${PR_URL}" >> $GITHUB_OUTPUT
           echo "✅ Pull request created successfully: ${PR_URL}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Dry run summary
         if: inputs.dry_run
