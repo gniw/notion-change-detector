@@ -104,18 +104,13 @@ jobs:
         if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
         id: pr-check
         run: |
-          # Check for existing open PRs with similar titles
-          EXISTING_PRS=$(gh pr list --state open --search "Notion Changes Report" --json number,title | jq length)
-          if [ "$EXISTING_PRS" -gt 0 ]; then
-            echo "⚠️  Warning: Found $EXISTING_PRS existing PR(s) with similar titles"
-            echo "Continuing with PR creation..."
-          fi
-          echo "duplicate-check=passed" >> $GITHUB_OUTPUT
+          # Use dedicated script for comprehensive duplicate PR detection
+          ./scripts/check-duplicate-prs.sh "${{ inputs.environment }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Commit changes
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+      - name: Commit changes (New PR)
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
         run: |
           git add reports/ --force
           DATE=$(date +'%Y-%m-%d')
@@ -126,14 +121,36 @@ jobs:
           Co-Authored-By: Claude <noreply@anthropic.com>"
           echo "Changes committed successfully"
       
-      - name: Push changes
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+      - name: Push changes (New PR)
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
         run: |
           git push origin ${{ steps.branch.outputs.name }}
           echo "Changes pushed to remote branch: ${{ steps.branch.outputs.name }}"
       
-      - name: Create pull request
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+      - name: Update existing PR branch
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing'
+        run: |
+          echo "🔄 Updating existing PR #${{ steps.pr-check.outputs.target_pr_number }}"
+          echo "   Target branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
+          
+          # Switch to existing PR branch
+          git checkout ${{ steps.pr-check.outputs.target_pr_branch }}
+          
+          # Add new changes
+          git add reports/ --force
+          DATE=$(date +'%Y-%m-%d')
+          git commit -m "feat: update automated Notion changes report for ${{ inputs.environment }} environment - ${DATE}
+
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          
+          # Push to existing branch
+          git push origin ${{ steps.pr-check.outputs.target_pr_branch }}
+          echo "✅ Updated existing PR branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
+      
+      - name: Create new pull request
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
         id: create-pr
         run: |
           DATE=$(date +'%Y-%m-%d')
@@ -198,6 +215,70 @@ jobs:
           
           echo "pr-url=${PR_URL}" >> $GITHUB_OUTPUT
           echo "✅ Pull request created successfully: ${PR_URL}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Update existing pull request
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing'
+        id: update-pr
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          ENVIRONMENT_UPPER=$(echo "${{ inputs.environment }}" | tr '[:lower:]' '[:upper:]')
+          
+          echo "🔄 Updating existing PR #${{ steps.pr-check.outputs.target_pr_number }}"
+          
+          # Create updated PR body
+          cat > /tmp/pr_body_update.md <<EOF
+          ## 📊 Notion Database Changes Report (Updated)
+
+          This automated report contains changes detected in the **${{ inputs.environment }}** environment Notion databases.
+          **Last Updated**: ${DATE}
+
+          EOF
+          
+          # Add detected changes section
+          if [ -n "$(find reports -name '*.md' 2>/dev/null)" ]; then
+            echo "## 📋 Latest Changes" >> /tmp/pr_body_update.md
+            echo "" >> /tmp/pr_body_update.md
+            
+            # Add each report file's contents
+            for report_file in $(find reports -name "*.md" | head -5); do
+              if [ -f "$report_file" ]; then
+                echo "### 📄 $(basename "$report_file")" >> /tmp/pr_body_update.md
+                echo "" >> /tmp/pr_body_update.md
+                cat "$report_file" >> /tmp/pr_body_update.md
+                echo "" >> /tmp/pr_body_update.md
+                echo "---" >> /tmp/pr_body_update.md
+                echo "" >> /tmp/pr_body_update.md
+              fi
+            done
+          fi
+          
+          # Add footer sections
+          cat >> /tmp/pr_body_update.md <<EOF
+          ### 🔧 Environment Details
+          - **Environment**: ${{ inputs.environment }}
+          - **Last Updated**: ${DATE}
+          - **Branch**: ${{ steps.pr-check.outputs.target_pr_branch }}
+          - **Workflow Run**: [\#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ### 📋 Next Steps
+          1. Review the updated changes above
+          2. Verify the changes are accurate
+          3. Merge this PR when ready
+
+          ---
+          
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+          EOF
+          
+          # Update PR description
+          gh pr edit "${{ steps.pr-check.outputs.target_pr_number }}" \
+            --body-file /tmp/pr_body_update.md
+          
+          PR_URL=$(gh pr view "${{ steps.pr-check.outputs.target_pr_number }}" --json url --jq '.url')
+          echo "pr-url=${PR_URL}" >> $GITHUB_OUTPUT
+          echo "✅ Pull request updated successfully: ${PR_URL}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
