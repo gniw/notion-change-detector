@@ -1,5 +1,5 @@
 {
-  "lastSync": "2025-08-14T06:38:33.855Z",
+  "lastSync": "2025-08-14T10:06:27.647Z",
   "pages": [
     {
       "id": "1f8a2a12-137b-80e0-a35b-c492f14bccba",
@@ -481,7 +481,8 @@
         "Properties": [
           "1d1a2a12-137b-81e4-b34e-ec93aa06f5ec",
           "1d1a2a12-137b-8157-9680-c4b1f562ed5a",
-          "248a2a12-137b-800a-9b3d-defc7bb84b3f"
+          "24fa2a12-137b-804a-aaea-cbcf48e364cc",
+          "24fa2a12-137b-80b5-85eb-ee23ad83cbce"
         ],
         "Name": "Admin"
       }

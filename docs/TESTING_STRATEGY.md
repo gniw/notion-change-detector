@@ -1,65 +1,65 @@
 # Testing Strategy
 
-## テスト戦略の方針
+## Testing Strategy Policy
 
-このプロジェクトでは、TDD（Test-Driven Development）を採用し、効果的なテスト戦略を実施します。
+This project adopts TDD (Test-Driven Development) and implements an effective testing strategy.
 
-## 外部API（Notion API）のテストアプローチ
+## Testing Approach for External APIs (Notion API)
 
-### モックパターンの採用
+### Adopting Mock Patterns
 
-外部APIとの通信を含む機能については、**モックパターン**を採用します。
+For functions involving communication with external APIs, we adopt **mock patterns**.
 
-#### 採用理由
+#### Reasons for Adoption
 
-##### 1. TDDの基本原則との整合性
-- **Fast（高速）**: 実際のAPI呼び出しは数秒かかるが、モックは瞬時に完了
-- **Independent（独立）**: 外部システム（Notion API）の状態に依存しない
-- **Repeatable（再現可能）**: ネットワーク状況やAPI状態に関係なく一貫した結果
+##### 1. Alignment with TDD Basic Principles
+- **Fast**: Actual API calls take several seconds, but mocks complete instantly
+- **Independent**: Does not depend on external system (Notion API) state
+- **Repeatable**: Consistent results regardless of network conditions or API state
 
-##### 2. TDDサイクルの効率化
-- **Red-Green-Refactor**サイクルを高速で回すことが可能
-- テスト失敗の原因が明確（実装ロジックの問題 vs 外部要因）
-- 開発者の集中を妨げない
+##### 2. TDD Cycle Efficiency
+- Enables high-speed **Red-Green-Refactor** cycles
+- Clear cause of test failures (implementation logic issues vs external factors)
+- Does not interfere with developer concentration
 
-##### 3. テスト対象の明確化
-単体テストでは以下をテスト：
-- コンストラクタの動作
-- 接続状態の管理ロジック
-- エラーハンドリングの実装
-- クラス内部のビジネスロジック
+##### 3. Clear Test Targets
+Unit tests test the following:
+- Constructor behavior
+- Connection state management logic
+- Error handling implementation
+- Internal business logic of classes
 
-**実際のAPI通信ではなく、クライアントクラスの動作**をテストすることが目的。
+**The purpose is to test client class behavior, not actual API communication.**
 
-##### 4. 信頼性の向上
-- APIレート制限に影響されない
-- APIキーの有効性に依存しない
-- ネットワーク障害の影響を受けない
+##### 4. Improved Reliability
+- Unaffected by API rate limits
+- Independent of API key validity
+- Unaffected by network failures
 
-### 実際のAPI接続テスト
+### Actual API Connection Testing
 
-実際のNotion APIとの通信確認は、以下で実施：
+Actual Notion API communication verification is conducted through:
 
-1. **統合テスト**: 別途統合テスト用のテストスイートを作成
-2. **手動テスト**: 開発時の動作確認
-3. **E2Eテスト**: 本番環境に近い環境での総合テスト
+1. **Integration Tests**: Create separate test suite for integration testing
+2. **Manual Testing**: Operation verification during development
+3. **E2E Tests**: Comprehensive testing in production-like environments
 
-### テスト階層
+### Test Hierarchy
 
 ```
-単体テスト (Unit Tests)
-├── モックを使用した高速テスト
-├── ビジネスロジックのテスト
-└── エラーハンドリングのテスト
+Unit Tests
+├── High-speed tests using mocks
+├── Business logic testing
+└── Error handling testing
 
-統合テスト (Integration Tests)
-├── 実際のAPI接続テスト
-├── データの整合性確認
-└── 外部システム連携テスト
+Integration Tests
+├── Actual API connection testing
+├── Data consistency verification
+└── External system integration testing
 
-E2Eテスト (End-to-End Tests)
-├── 実環境での動作確認
-└── ユーザーシナリオテスト
+E2E Tests (End-to-End Tests)
+├── Operation verification in real environment
+└── User scenario testing
 ```
 
-この戦略により、開発速度と品質の両立を図ります。
+This strategy achieves both development speed and quality.

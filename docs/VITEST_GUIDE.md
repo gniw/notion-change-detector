@@ -1,45 +1,45 @@
 # Vitest Guide
 
-このプロジェクトで使用するVitestのAPI、機能、実装パターンをまとめています。
+This document summarizes Vitest APIs, features, and implementation patterns used in this project.
 
-## Mock Functions（モック関数）
+## Mock Functions
 
 ### `vi.fn()`
 
-**目的**: テスト用の「偽の関数」を作成する
+**Purpose**: Create "fake functions" for testing
 
-**基本的な使い方**:
+**Basic usage**:
 ```typescript
 const mockFunction = vi.fn()
 ```
 
-**できること**:
+**Capabilities**:
 
-#### 1. 関数の呼び出し監視
-関数がどのように呼ばれたかを記録・確認できる
+#### 1. Function Call Monitoring
+Record and verify how functions were called
 
 ```typescript
 const mockFn = vi.fn()
 mockFn('hello', 123)
 
-// 呼び出し回数の確認
+// Check number of calls
 expect(mockFn).toHaveBeenCalledTimes(1)
 
-// 呼び出し引数の確認
+// Check call arguments
 expect(mockFn).toHaveBeenCalledWith('hello', 123)
 
-// 呼び出されたかの確認
+// Check if called
 expect(mockFn).toHaveBeenCalled()
 ```
 
-#### 2. 戻り値の設定
-偽の関数が返すべき値を指定できる
+#### 2. Return Value Configuration
+Specify values that fake functions should return
 
 ```typescript
 const mockFn = vi.fn().mockReturnValue('fake result')
 const result = mockFn() // 'fake result'
 
-// 複数回呼び出しで異なる値を返す
+// Return different values on multiple calls
 const mockFn2 = vi.fn()
   .mockReturnValueOnce('first')
   .mockReturnValueOnce('second')
@@ -50,15 +50,15 @@ console.log(mockFn2()) // 'second'
 console.log(mockFn2()) // 'default'
 ```
 
-#### 3. 非同期処理のモック
-Promise を返す非同期関数をモック
+#### 3. Asynchronous Processing Mocks
+Mock asynchronous functions that return Promises
 
 ```typescript
-// 成功ケース
+// Success case
 const mockAsyncFn = vi.fn().mockResolvedValue({ id: 'user-123' })
 const result = await mockAsyncFn() // { id: 'user-123' }
 
-// エラーケース
+// Error case
 const mockErrorFn = vi.fn().mockRejectedValue(new Error('API Error'))
 try {
   await mockErrorFn()
@@ -67,8 +67,8 @@ try {
 }
 ```
 
-#### 4. 関数の実装を置き換え
-独自のロジックを持つ偽の関数を作成
+#### 4. Function Implementation Replacement
+Create fake functions with custom logic
 
 ```typescript
 const mockFn = vi.fn().mockImplementation((name: string) => {
@@ -78,14 +78,14 @@ const mockFn = vi.fn().mockImplementation((name: string) => {
 console.log(mockFn('World')) // 'Hello, World!'
 ```
 
-#### 5. 型安全なモック関数の定義
-TypeScriptでvi.fn()の型を明示的に指定
+#### 5. Type-safe Mock Function Definition
+Explicitly specify types for vi.fn() in TypeScript
 
 ```typescript
-// ジェネリクスで引数と戻り値の型を指定
+// Specify argument and return value types with generics
 const mockFn = vi.fn<[string, number], Promise<string>>()
 
-// より具体的な例
+// More specific example
 const mockLoadConfig = vi.fn<[], Promise<DatabasesConfig>>()
   .mockResolvedValue({ databases: [] })
 
@@ -93,22 +93,22 @@ const mockGetById = vi.fn<[string], Promise<User | null>>()
   .mockImplementation((id) => Promise.resolve({ id, name: 'Test User' }))
 ```
 
-**型定義の構文**:
+**Type definition syntax**:
 ```typescript
 vi.Mock<Parameters, ReturnType>
-// Parameters: 引数の型（配列で指定）
-// ReturnType: 戻り値の型
+// Parameters: Argument types (specified as array)
+// ReturnType: Return value type
 ```
 
-**このプロジェクトでの使用例**:
+**Usage examples in this project**:
 ```typescript
-// Notion API の users.me() メソッドをモック
+// Mock Notion API users.me() method
 mockUsersMe = vi.fn().mockResolvedValue({ 
   object: 'user', 
   id: 'test-user-id' 
 })
 
-// 型安全なモックオブジェクトの定義
+// Type-safe mock object definition
 type MockedNotionClient = {
   isConnected: vi.Mock<[], boolean>;
   testConnection: vi.Mock<[], Promise<boolean>>;
@@ -116,8 +116,8 @@ type MockedNotionClient = {
 };
 ```
 
-**なぜ使うのか**:
-- 実際のAPI呼び出しを避けて高速テストを実現
-- 外部依存を排除して安定したテスト環境を構築
-- 関数の呼び出しパターンを詳細に検証
-- エラーケースや特殊なシナリオを簡単に再現
+**Why use it**:
+- Achieve high-speed tests by avoiding actual API calls
+- Build stable test environment by eliminating external dependencies
+- Verify function call patterns in detail
+- Easily reproduce error cases and special scenarios

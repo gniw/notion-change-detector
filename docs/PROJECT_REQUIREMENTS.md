@@ -1,125 +1,125 @@
 # Project Requirements
 
-## プロジェクトの目的
+## Project Purpose
 
-Notion データベースの変更を自動検知し、変更内容をマークダウン形式でまとめてGitHub Pull Requestとして可視化する自動化システムを構築する。
+Build an automated system that automatically detects changes in Notion databases, summarizes change content in Markdown format, and visualizes it as GitHub Pull Requests.
 
-### 実現したい機能
-1. Notion APIにアクセスし、対象のデータベースに変更があるかチェックする
-2. 変更があれば、変更内容をマークダウン形式でまとめる
-3. 作成したマークダウンを使用してGitHubにPRを作成し、レビュー可能な状態にする
-4. 上記の工程を毎日同じ時刻に繰り返し行う
-5. 作成したPRがマージされておらず、翌日以降のチェックでさらに変更があれば、既存のPRの内容に追記する形で変更をまとめる
+### Functions to Implement
+1. Access Notion API and check if there are changes in target databases
+2. If changes exist, summarize change content in Markdown format
+3. Create GitHub PR using the created Markdown for reviewable state
+4. Repeat the above process daily at the same time
+5. If created PR is not merged and further changes are detected in subsequent checks, append changes to existing PR content
 
-## 機能要件
+## Functional Requirements
 
-### 1. Notion変更検知機能
-- **目的**: 対象データベースの変更を検知
-- **必要な機能**:
-  - Notion APIクライアントの初期化
-  - データベース情報の取得
-  - 前回取得時との差分検出
-  - 変更状態の永続化（ファイルまたはDB）
+### 1. Notion Change Detection
+- **Purpose**: Detect changes in target databases
+- **Required Functions**:
+  - Notion API client initialization
+  - Database information retrieval
+  - Difference detection from previous retrieval
+  - Change state persistence (file or DB)
 
-### 2. マークダウン生成機能
-- **目的**: 変更内容を可読性の高いマークダウンで出力
-- **必要な機能**:
-  - 新規追加・更新・削除されたページの識別
-  - ページプロパティの変更詳細の抽出
-  - テンプレート化されたマークダウン生成
+### 2. Markdown Generation
+- **Purpose**: Output change content in highly readable Markdown
+- **Required Functions**:
+  - Identification of newly added, updated, and deleted pages
+  - Extraction of page property change details
+  - Templated Markdown generation
 
-### 3. GitHub PR作成・更新機能
-- **目的**: 変更内容をPRとして自動作成・更新
-- **必要な機能**:
-  - GitHub API クライアント
-  - 既存PR検索機能
-  - 新規PR作成機能
-  - 既存PR更新機能（内容追記）
-  - ブランチ管理
+### 3. GitHub PR Creation & Update
+- **Purpose**: Automatically create and update PRs with change content
+- **Required Functions**:
+  - GitHub API client
+  - Existing PR search functionality
+  - New PR creation functionality
+  - Existing PR update functionality (content appending)
+  - Branch management
 
-### 4. スケジューリング機能
-- **目的**: 毎日定時実行
-- **必要な機能**:
-  - cron式またはタイマーベースの定期実行
-  - プロセス管理
-  - エラーハンドリング・リトライ機能
+### 4. Scheduling Function
+- **Purpose**: Daily scheduled execution
+- **Required Functions**:
+  - Cron expression or timer-based periodic execution
+  - Process management
+  - Error handling and retry functionality
 
-### 5. 状態管理機能
-- **目的**: 実行履歴と状態の管理
-- **必要な機能**:
-  - 前回実行時のデータベース状態保存
-  - 作成済みPR情報の管理
-  - 実行ログ・エラーログの記録
+### 5. State Management
+- **Purpose**: Execution history and state management
+- **Required Functions**:
+  - Save database state from previous execution
+  - Management of created PR information
+  - Recording of execution logs and error logs
 
-## 技術要件
+## Technical Requirements
 
-### 環境変数
+### Environment Variables
 ```
-NOTION_API_KEY=<Notion統合トークン>
+NOTION_API_KEY=<Notion integration token>
 GITHUB_TOKEN=<GitHub Personal Access Token>
-NOTION_DATABASE_ID=<監視対象のデータベースID>
-GITHUB_OWNER=<GitHubリポジトリオーナー>
-GITHUB_REPO=<GitHubリポジトリ名>
+NOTION_DATABASE_ID=<Target database ID for monitoring>
+GITHUB_OWNER=<GitHub repository owner>
+GITHUB_REPO=<GitHub repository name>
 ```
 
-### 追加ライブラリ
-- `@octokit/rest` - GitHub API クライアント
-- `node-cron` - 定期実行用スケジューラー
-- データ永続化用（JSONファイルまたはSQLite）
+### Additional Libraries
+- `@octokit/rest` - GitHub API client
+- `node-cron` - Scheduler for periodic execution
+- For data persistence (JSON files or SQLite)
 
-### アーキテクチャ
+### Architecture
 ```
 src/
 ├── notion/
-│   ├── client.ts          # Notion APIクライアント
-│   ├── database.ts        # データベース操作
-│   └── differ.ts          # 差分検出ロジック
+│   ├── client.ts          # Notion API client
+│   ├── database.ts        # Database operations
+│   └── differ.ts          # Difference detection logic
 ├── github/
-│   ├── client.ts          # GitHub APIクライアント
-│   └── pr-manager.ts      # PR作成・更新
+│   ├── client.ts          # GitHub API client
+│   └── pr-manager.ts      # PR creation and update
 ├── markdown/
-│   └── generator.ts       # マークダウン生成
+│   └── generator.ts       # Markdown generation
 ├── storage/
-│   └── state-manager.ts   # 状態管理
+│   └── state-manager.ts   # State management
 ├── scheduler/
-│   └── cron.ts           # 定期実行
-└── index.ts              # メインエントリポイント
+│   └── cron.ts           # Periodic execution
+└── index.ts              # Main entry point
 ```
 
-## 実装優先度
+## Implementation Priority
 
-### Phase 1: コア機能（最優先）
-1. **Notion APIクライアント** - APIアクセスの基盤
-2. **データベース取得機能** - 基本的なデータ取得
-3. **状態管理機能** - 差分検出のための前回状態保存
+### Phase 1: Core Functions (Highest Priority)
+1. **Notion API Client** - Foundation for API access
+2. **Database Retrieval Function** - Basic data retrieval
+3. **State Management Function** - Save previous state for difference detection
 
-### Phase 2: 差分検出とマークダウン生成
-4. **差分検出ロジック** - 変更の識別
-5. **マークダウン生成** - 変更内容の可読化
+### Phase 2: Difference Detection and Markdown Generation
+4. **Difference Detection Logic** - Change identification
+5. **Markdown Generation** - Making change content readable
 
-### Phase 3: GitHub統合
-6. **GitHub APIクライアント** - PR操作の基盤
-7. **PR作成・更新機能** - 自動PR管理
+### Phase 3: GitHub Actions Integration
+6. **GitHub API Client** - Foundation for PR operations
+7. **PR Creation/Update Function** - Automated PR management
 
-### Phase 4: 自動化
-8. **スケジューリング機能** - 定期実行
-9. **エラーハンドリング** - 堅牢性の向上
+### Phase 4: Automation
+8. **Scheduling Function** - Periodic execution
+9. **Error Handling** - Robustness improvement
 
-## TDDアプローチ
+## TDD Approach
 
-### 開発手順
-各機能について以下の順序で開発：
-1. **テストケース作成** - 期待される動作の定義
-2. **最小実装** - テストが通る最小限のコード
-3. **リファクタリング** - コード品質の向上
-4. **統合テスト** - 機能間の連携確認
+### Development Process
+Develop each function in the following order:
+1. **Create Test Cases** - Define expected behavior
+2. **Minimal Implementation** - Minimal code that passes tests
+3. **Refactoring** - Improve code quality
+4. **Integration Testing** - Verify inter-function coordination
 
-### 開始点
-Phase 1のNotion APIクライアントからTDDで実装を開始する。
+### Starting Point
+Begin TDD implementation with Phase 1's Notion API client.
 
-## 主要な技術的課題
+## Major Technical Challenges
 
-- Notion APIのページネーション処理
-- GitHub APIの認証とレート制限
-- 大量データの差分検出効率化
-- 長時間実行プロセスの安定性確保
+- Notion API pagination processing
+- GitHub API authentication and rate limiting
+- Efficient difference detection for large data
+- Ensuring stability of long-running processes

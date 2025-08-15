@@ -1,9 +1,9 @@
 {
-  "lastSync": "2025-08-14T06:38:25.819Z",
+  "lastSync": "2025-08-14T10:06:18.389Z",
   "pages": [
     {
-      "id": "248a2a12-137b-800a-9b3d-defc7bb84b3f",
-      "last_edited_time": "2025-08-13T06:30:00.000Z",
+      "id": "24fa2a12-137b-80b5-85eb-ee23ad83cbce",
+      "last_edited_time": "2025-08-14T10:05:00.000Z",
       "properties": {
         "Object": [
           "1d1a2a12-137b-81d8-8a8b-e4238e7556c0"
@@ -17,8 +17,28 @@
         "Type": null,
         "Input": "",
         "ReferencedObject_Name": [],
-        "Description": "テスト用のプロパティ",
-        "Name": "this is test property"
+        "Description": "プロパティ名はまだないです",
+        "Name": ""
+      }
+    },
+    {
+      "id": "24fa2a12-137b-804a-aaea-cbcf48e364cc",
+      "last_edited_time": "2025-08-14T10:05:00.000Z",
+      "properties": {
+        "Object": [
+          "1d1a2a12-137b-81d8-8a8b-e4238e7556c0"
+        ],
+        "ReferencedObject": [],
+        "Object_Name": [
+          "Admin"
+        ],
+        "Output": "これは無効です",
+        "CheckStatus": "未確認",
+        "Type": "string",
+        "Input": "{{ admin.テストプロパティ }}",
+        "ReferencedObject_Name": [],
+        "Description": "テスト用のプロパティ②",
+        "Name": "テストプロパティ②"
       }
     },
     {
