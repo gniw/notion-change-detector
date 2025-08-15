@@ -7,6 +7,15 @@ export interface DatabaseConfig {
   enabled: boolean;
 }
 
+export interface EnvironmentDatabasesConfig {
+  environments: {
+    [key: string]: {
+      databases: DatabaseConfig[];
+    };
+  };
+}
+
+// 後方互換性のため
 export interface DatabasesConfig {
   databases: DatabaseConfig[];
 }
@@ -22,15 +31,41 @@ export class DatabaseConfigManager {
   async loadConfig(): Promise<DatabasesConfig> {
     try {
       const data = await fs.readFile(this.configPath, "utf-8");
-      const config = JSON.parse(data) as DatabasesConfig;
+      const rawConfig = JSON.parse(data);
 
-      // バリデーション
-      this.validateConfig(config);
+      // 環境別設定かどうかを判定
+      if (rawConfig.environments) {
+        // 環境別設定の場合
+        const environment = process.env.ENVIRONMENT || 'production';
+        const environmentConfig = rawConfig as EnvironmentDatabasesConfig;
+        
+        if (!environmentConfig.environments[environment]) {
+          throw new Error(`環境 '${environment}' の設定が見つかりません`);
+        }
 
-      // キャッシュに保存
-      this.cachedConfig = config;
+        const config: DatabasesConfig = {
+          databases: environmentConfig.environments[environment].databases
+        };
 
-      return config;
+        // バリデーション
+        this.validateConfig(config);
+
+        // キャッシュに保存
+        this.cachedConfig = config;
+
+        return config;
+      } else {
+        // 従来形式の場合（後方互換性）
+        const config = rawConfig as DatabasesConfig;
+        
+        // バリデーション
+        this.validateConfig(config);
+
+        // キャッシュに保存
+        this.cachedConfig = config;
+
+        return config;
+      }
     } catch (error: unknown) {
       if (error instanceof Error && (error as NodeJS.ErrnoException).code === "ENOENT") {
         throw new Error("設定ファイルが見つかりません");

@@ -1,0 +1,214 @@
+name: Shared Notion Changes Detection Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to run against (test/production)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Run in dry-run mode (skip PR creation)'
+        required: false
+        type: boolean
+        default: false
+      force_pr:
+        description: 'Create PR even if no changes detected'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      NOTION_API_KEY:
+        description: 'Notion API key for the specified environment'
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  notion-changes:
+    runs-on: ubuntu-latest
+    
+    env:
+      NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+      ENVIRONMENT: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Validate environment
+        run: |
+          echo "Running in ${{ inputs.environment }} environment"
+          if [ -z "$NOTION_API_KEY" ]; then
+            echo "ERROR: NOTION_API_KEY is not set"
+            exit 1
+          fi
+          echo "Environment validation passed"
+      
+      - name: Run Notion change detection
+        id: detect-changes
+        run: |
+          echo "Running Notion change detection for ${{ inputs.environment }} environment..."
+          npm run generate-report
+          echo "Change detection completed"
+      
+      - name: Check for changes
+        id: check-changes
+        run: |
+          echo "Checking for generated reports..."
+          if [ -n "$(find reports -name '*.md' -newer .git/FETCH_HEAD 2>/dev/null)" ] || [ "${{ inputs.force_pr }}" = "true" ]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected or force_pr enabled"
+            if [ -n "$(find reports -name '*.md' 2>/dev/null)" ]; then
+              echo "Generated report files:"
+              find reports -name '*.md' -exec basename {} \; | head -5
+            fi
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          fi
+      
+      - name: Configure Git
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      
+      - name: Generate branch name
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        id: branch
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          BRANCH_NAME="${{ inputs.environment }}-notion-changes-${TIMESTAMP}"
+          echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "Generated branch name: ${BRANCH_NAME}"
+      
+      - name: Create and switch to new branch
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        run: |
+          git checkout -b ${{ steps.branch.outputs.name }}
+          echo "Switched to branch: ${{ steps.branch.outputs.name }}"
+      
+      - name: Check for duplicate PRs
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        id: pr-check
+        run: |
+          # Check for existing open PRs with similar titles
+          EXISTING_PRS=$(gh pr list --state open --search "Notion Changes Report" --json number,title | jq length)
+          if [ "$EXISTING_PRS" -gt 0 ]; then
+            echo "⚠️  Warning: Found $EXISTING_PRS existing PR(s) with similar titles"
+            echo "Continuing with PR creation..."
+          fi
+          echo "duplicate-check=passed" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Commit changes
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        run: |
+          git add reports/ --force
+          DATE=$(date +'%Y-%m-%d')
+          git commit -m "feat: add automated Notion changes report for ${{ inputs.environment }} environment - ${DATE}
+
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          echo "Changes committed successfully"
+      
+      - name: Push changes
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        run: |
+          git push origin ${{ steps.branch.outputs.name }}
+          echo "Changes pushed to remote branch: ${{ steps.branch.outputs.name }}"
+      
+      - name: Create pull request
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        id: create-pr
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          ENVIRONMENT_UPPER=$(echo "${{ inputs.environment }}" | tr '[:lower:]' '[:upper:]')
+          
+          PR_TITLE="📊 Notion Changes Report (${ENVIRONMENT_UPPER}) - ${DATE}"
+          
+          PR_BODY=$(cat <<EOF
+          ## 📊 Notion Database Changes Report
+
+          This automated report contains changes detected in the **${{ inputs.environment }}** environment Notion databases.
+
+          ### 📁 Report Files
+          $(find reports -name "*.md" -exec echo "- {}" \; | head -10)
+
+          ### 🔧 Environment Details
+          - **Environment**: ${{ inputs.environment }}
+          - **Generated**: ${DATE}
+          - **Branch**: ${{ steps.branch.outputs.name }}
+          - **Workflow Run**: [\#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ### 📋 Next Steps
+          1. Review the generated markdown reports
+          2. Verify the detected changes are accurate
+          3. Merge this PR when ready
+
+          ---
+          
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+          EOF
+          )
+          
+          PR_URL=$(gh pr create \
+            --title "${PR_TITLE}" \
+            --body "${PR_BODY}" \
+            --head "${{ steps.branch.outputs.name }}" \
+            --base main)
+          
+          echo "pr-url=${PR_URL}" >> $GITHUB_OUTPUT
+          echo "✅ Pull request created successfully: ${PR_URL}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Dry run summary
+        if: inputs.dry_run
+        run: |
+          echo "=== DRY RUN SUMMARY ==="
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Changes detected: ${{ steps.check-changes.outputs.has-changes }}"
+          echo "Force PR: ${{ inputs.force_pr }}"
+          if [ "${{ steps.check-changes.outputs.has-changes }}" = "true" ]; then
+            echo "✅ Would create PR with detected changes"
+          else
+            echo "ℹ️  No changes detected, PR would not be created"
+          fi
+          echo "🧪 Dry run completed successfully"
+      
+      - name: Final summary
+        if: always()
+        run: |
+          echo "=== WORKFLOW SUMMARY ==="
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Dry run mode: ${{ inputs.dry_run }}"
+          echo "Force PR: ${{ inputs.force_pr }}"
+          echo "Changes detected: ${{ steps.check-changes.outputs.has-changes }}"
+          
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "Status: Dry run completed"
+          elif [ "${{ steps.check-changes.outputs.has-changes }}" = "true" ]; then
+            if [ -n "${{ steps.create-pr.outputs.pr-url }}" ]; then
+              echo "Status: PR created successfully"
+              echo "PR URL: ${{ steps.create-pr.outputs.pr-url }}"
+            else
+              echo "Status: Changes detected but PR creation failed"
+            fi
+          else
+            echo "Status: No changes detected"
+          fi
