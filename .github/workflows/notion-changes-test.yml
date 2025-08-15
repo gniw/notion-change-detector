@@ -12,6 +12,10 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   test-environment-changes:
     uses: ./.github/workflows/_shared-notion-workflow.yml
