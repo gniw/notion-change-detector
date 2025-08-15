@@ -109,6 +109,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Generate incremental report (Existing PR)
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing'
+        id: incremental-report
+        run: |
+          echo "🔄 Generating incremental report for existing PR..."
+          echo "Previous PR branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
+          
+          # Generate incremental report using the dedicated script
+          ./scripts/generate-incremental-report.sh "${{ inputs.environment }}" "${{ steps.pr-check.outputs.target_pr_branch }}"
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+      
       - name: Commit changes (New PR)
         if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
         run: |
@@ -127,20 +139,23 @@ jobs:
           git push origin ${{ steps.branch.outputs.name }}
           echo "Changes pushed to remote branch: ${{ steps.branch.outputs.name }}"
       
-      - name: Update existing PR branch
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing'
+      - name: Update existing PR branch (Incremental Changes)
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing' && steps.incremental-report.outputs.has_incremental_changes == 'true'
         run: |
           echo "🔄 Updating existing PR #${{ steps.pr-check.outputs.target_pr_number }}"
           echo "   Target branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
+          echo "   Incremental changes: ${{ steps.incremental-report.outputs.changes_summary }}"
           
           # Fetch latest changes and switch to existing PR branch
           git fetch origin
           git checkout -B ${{ steps.pr-check.outputs.target_pr_branch }} origin/${{ steps.pr-check.outputs.target_pr_branch }}
           
-          # Add new changes
-          git add reports/ --force
+          # Add incremental changes
+          git add reports/ state/ --force
           DATE=$(date +'%Y-%m-%d')
-          git commit -m "feat: update automated Notion changes report for ${{ inputs.environment }} environment - ${DATE}
+          git commit -m "feat: add incremental Notion changes for ${{ inputs.environment }} environment - ${DATE}
+
+          ${{ steps.incremental-report.outputs.changes_summary }}
 
           🤖 Generated with [Claude Code](https://claude.ai/code)
           
@@ -148,7 +163,14 @@ jobs:
           
           # Push to existing branch
           git push origin ${{ steps.pr-check.outputs.target_pr_branch }}
-          echo "✅ Updated existing PR branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
+          echo "✅ Updated existing PR branch with incremental changes"
+          
+      - name: Skip PR update (No incremental changes)
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing' && steps.incremental-report.outputs.has_incremental_changes != 'true'
+        run: |
+          echo "ℹ️  Skipping PR update - no incremental changes detected"
+          echo "   Existing PR #${{ steps.pr-check.outputs.target_pr_number }} remains unchanged"
+          echo "   Summary: ${{ steps.incremental-report.outputs.changes_summary }}"
       
       - name: Create new pull request
         if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
@@ -219,8 +241,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Update existing pull request
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing'
+      - name: Update existing pull request (Incremental)
+        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing' && steps.incremental-report.outputs.has_incremental_changes == 'true'
         id: update-pr
         run: |
           DATE=$(date +'%Y-%m-%d')
@@ -228,32 +250,34 @@ jobs:
           
           echo "🔄 Updating existing PR #${{ steps.pr-check.outputs.target_pr_number }}"
           
-          # Create updated PR body
+          # Create updated PR body with incremental changes
           cat > /tmp/pr_body_update.md <<EOF
-          ## 📊 Notion Database Changes Report (Updated)
+          ## 📊 Notion Database Changes Report (Incremental Update)
 
-          This automated report contains changes detected in the **${{ inputs.environment }}** environment Notion databases.
-          **Last Updated**: ${DATE}
+          This report contains **incremental changes** detected in the **${{ inputs.environment }}** environment Notion databases.
+
+          ### 📈 Latest Update Summary
+          **Updated**: ${DATE}  
+          **Changes**: ${{ steps.incremental-report.outputs.changes_summary }}
 
           EOF
           
-          # Add detected changes section
-          if [ -n "$(find reports -name '*.md' 2>/dev/null)" ]; then
-            echo "## 📋 Latest Changes" >> /tmp/pr_body_update.md
+          # Add incremental report content
+          INCREMENTAL_REPORT="${{ steps.incremental-report.outputs.incremental_report_file }}"
+          if [ -n "$INCREMENTAL_REPORT" ] && [ -f "$INCREMENTAL_REPORT" ]; then
+            echo "## 🆕 Incremental Changes" >> /tmp/pr_body_update.md
             echo "" >> /tmp/pr_body_update.md
-            
-            # Add each report file's contents
-            for report_file in $(find reports -name "*.md" | head -5); do
-              if [ -f "$report_file" ]; then
-                echo "### 📄 $(basename "$report_file")" >> /tmp/pr_body_update.md
-                echo "" >> /tmp/pr_body_update.md
-                cat "$report_file" >> /tmp/pr_body_update.md
-                echo "" >> /tmp/pr_body_update.md
-                echo "---" >> /tmp/pr_body_update.md
-                echo "" >> /tmp/pr_body_update.md
-              fi
-            done
+            cat "$INCREMENTAL_REPORT" >> /tmp/pr_body_update.md
+            echo "" >> /tmp/pr_body_update.md
+            echo "---" >> /tmp/pr_body_update.md
+            echo "" >> /tmp/pr_body_update.md
           fi
+          
+          # Add note about full history
+          echo "### 📋 Full Change History" >> /tmp/pr_body_update.md
+          echo "" >> /tmp/pr_body_update.md
+          echo "For the complete change history, see the [Files Changed](./../../files) tab or individual report files in the \`reports/\` directory." >> /tmp/pr_body_update.md
+          echo "" >> /tmp/pr_body_update.md
           
           # Add footer sections
           cat >> /tmp/pr_body_update.md <<EOF
@@ -290,8 +314,14 @@ jobs:
           echo "Environment: ${{ inputs.environment }}"
           echo "Changes detected: ${{ steps.check-changes.outputs.has-changes }}"
           echo "Force PR: ${{ inputs.force_pr }}"
+          
           if [ "${{ steps.check-changes.outputs.has-changes }}" = "true" ]; then
-            echo "✅ Would create PR with detected changes"
+            echo "✅ Would process changes with the following workflow:"
+            echo "   - Generate full Notion change report"
+            echo "   - Check for duplicate PRs"
+            echo "   - If new PR: Create new PR with full report"
+            echo "   - If existing PR: Generate incremental report and update existing PR"
+            echo "   - Skip PR update if no incremental changes detected"
           else
             echo "ℹ️  No changes detected, PR would not be created"
           fi
