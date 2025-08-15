@@ -133,8 +133,9 @@ jobs:
           echo "🔄 Updating existing PR #${{ steps.pr-check.outputs.target_pr_number }}"
           echo "   Target branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
           
-          # Switch to existing PR branch
-          git checkout ${{ steps.pr-check.outputs.target_pr_branch }}
+          # Fetch latest changes and switch to existing PR branch
+          git fetch origin
+          git checkout -B ${{ steps.pr-check.outputs.target_pr_branch }} origin/${{ steps.pr-check.outputs.target_pr_branch }}
           
           # Add new changes
           git add reports/ --force
