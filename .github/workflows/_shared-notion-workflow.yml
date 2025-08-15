@@ -144,36 +144,20 @@ jobs:
           # Collect report contents
           REPORT_CONTENTS=""
           if [ -n "$(find reports -name '*.md' 2>/dev/null)" ]; then
-            REPORT_CONTENTS=$(cat <<'REPORT_EOF'
-
-## 📋 Detected Changes
-
-REPORT_EOF
-)
+            REPORT_CONTENTS=$'\n## 📋 Detected Changes\n\n'
             
             # Add each report file's contents
             for report_file in $(find reports -name "*.md" | head -5); do
               if [ -f "$report_file" ]; then
-                REPORT_CONTENTS="${REPORT_CONTENTS}
-
-### 📄 $(basename "$report_file")
-
-$(cat "$report_file")
-
----
-"
+                REPORT_CONTENTS="${REPORT_CONTENTS}$'\n### 📄 $(basename "$report_file")\n\n$(cat "$report_file")\n\n---\n'"
               fi
             done
           else
-            REPORT_CONTENTS="
-
-## 📋 Detected Changes
-
-No specific changes detected, but PR was forced via force_pr option.
-"
+            REPORT_CONTENTS=$'\n## 📋 Detected Changes\n\nNo specific changes detected, but PR was forced via force_pr option.\n'
           fi
           
-          PR_BODY=$(cat <<EOF
+          # Create PR body using temporary file to handle complex content
+          cat > /tmp/pr_body.md <<EOF
           ## 📊 Notion Database Changes Report
 
           This automated report contains changes detected in the **${{ inputs.environment }}** environment Notion databases.
@@ -193,11 +177,10 @@ No specific changes detected, but PR was forced via force_pr option.
           
           🤖 Generated with [Claude Code](https://claude.ai/code)
           EOF
-          )
           
           PR_URL=$(gh pr create \
             --title "${PR_TITLE}" \
-            --body "${PR_BODY}" \
+            --body-file /tmp/pr_body.md \
             --head "${{ steps.branch.outputs.name }}" \
             --base main)
           
