@@ -141,27 +141,39 @@ jobs:
           
           PR_TITLE="📊 Notion Changes Report (${ENVIRONMENT_UPPER}) - ${DATE}"
           
-          # Collect report contents
-          REPORT_CONTENTS=""
-          if [ -n "$(find reports -name '*.md' 2>/dev/null)" ]; then
-            REPORT_CONTENTS=$'\n## 📋 Detected Changes\n\n'
-            
-            # Add each report file's contents
-            for report_file in $(find reports -name "*.md" | head -5); do
-              if [ -f "$report_file" ]; then
-                REPORT_CONTENTS="${REPORT_CONTENTS}$'\n### 📄 $(basename "$report_file")\n\n$(cat "$report_file")\n\n---\n'"
-              fi
-            done
-          else
-            REPORT_CONTENTS=$'\n## 📋 Detected Changes\n\nNo specific changes detected, but PR was forced via force_pr option.\n'
-          fi
-          
           # Create PR body using temporary file to handle complex content
           cat > /tmp/pr_body.md <<EOF
           ## 📊 Notion Database Changes Report
 
           This automated report contains changes detected in the **${{ inputs.environment }}** environment Notion databases.
-          ${REPORT_CONTENTS}
+
+          EOF
+          
+          # Add detected changes section
+          if [ -n "$(find reports -name '*.md' 2>/dev/null)" ]; then
+            echo "## 📋 Detected Changes" >> /tmp/pr_body.md
+            echo "" >> /tmp/pr_body.md
+            
+            # Add each report file's contents
+            for report_file in $(find reports -name "*.md" | head -5); do
+              if [ -f "$report_file" ]; then
+                echo "### 📄 $(basename "$report_file")" >> /tmp/pr_body.md
+                echo "" >> /tmp/pr_body.md
+                cat "$report_file" >> /tmp/pr_body.md
+                echo "" >> /tmp/pr_body.md
+                echo "---" >> /tmp/pr_body.md
+                echo "" >> /tmp/pr_body.md
+              fi
+            done
+          else
+            echo "## 📋 Detected Changes" >> /tmp/pr_body.md
+            echo "" >> /tmp/pr_body.md
+            echo "No specific changes detected, but PR was forced via force_pr option." >> /tmp/pr_body.md
+            echo "" >> /tmp/pr_body.md
+          fi
+          
+          # Add footer sections
+          cat >> /tmp/pr_body.md <<EOF
           ### 🔧 Environment Details
           - **Environment**: ${{ inputs.environment }}
           - **Generated**: ${DATE}
