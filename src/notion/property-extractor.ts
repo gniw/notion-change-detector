@@ -43,7 +43,9 @@ export class PropertyExtractor {
         return (property as ExtractProperty<'status'>).status?.name || null;
       
       case "relation":
-        return (property as ExtractProperty<'relation'>).relation.map(rel => rel.id);
+        return (property as ExtractProperty<'relation'>).relation
+          .map(rel => rel.id)
+          .sort(); // 配列の順序を安定化
       
       case "rollup":
         return this.extractRollupValue((property as ExtractProperty<'rollup'>).rollup);
