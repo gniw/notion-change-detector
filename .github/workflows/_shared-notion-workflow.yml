@@ -60,33 +60,34 @@ jobs:
         id: detect-changes
         run: |
           echo "Running Notion change detection for ${{ inputs.environment }} environment..."
-          npm run generate-report
+          
+          OUTPUT=$(npm run generate-report 2>&1)
+          echo "$OUTPUT"
+          
+          # Parse GitHub Actions output variables from application
+          HAS_CHANGES=$(echo "$OUTPUT" | grep "has-changes=" | cut -d'=' -f2- | tail -1)
+          TOTAL_CHANGES=$(echo "$OUTPUT" | grep "total-changes=" | cut -d'=' -f2- | tail -1)
+          REPORT_FILE=$(echo "$OUTPUT" | grep "report-file=" | cut -d'=' -f2- | tail -1)
+          
+          echo "has-changes=${HAS_CHANGES:-false}" >> $GITHUB_OUTPUT
+          echo "total-changes=${TOTAL_CHANGES:-0}" >> $GITHUB_OUTPUT
+          echo "report-file=${REPORT_FILE}" >> $GITHUB_OUTPUT
+          
+          if [ "${{ inputs.force_pr }}" = "true" ]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "Force PR enabled - overriding change detection"
+          fi
+          
           echo "Change detection completed"
       
-      - name: Check for changes
-        id: check-changes
-        run: |
-          echo "Checking for generated reports..."
-          if [ -n "$(find reports -name '*.md' -newer .git/FETCH_HEAD 2>/dev/null)" ] || [ "${{ inputs.force_pr }}" = "true" ]; then
-            echo "has-changes=true" >> $GITHUB_OUTPUT
-            echo "Changes detected or force_pr enabled"
-            if [ -n "$(find reports -name '*.md' 2>/dev/null)" ]; then
-              echo "Generated report files:"
-              find reports -name '*.md' -exec basename {} \; | head -5
-            fi
-          else
-            echo "has-changes=false" >> $GITHUB_OUTPUT
-            echo "No changes detected"
-          fi
-      
       - name: Configure Git
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
       
       - name: Generate branch name
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run
         id: branch
         run: |
           TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
@@ -95,13 +96,13 @@ jobs:
           echo "Generated branch name: ${BRANCH_NAME}"
       
       - name: Create and switch to new branch
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run
         run: |
           git checkout -b ${{ steps.branch.outputs.name }}
           echo "Switched to branch: ${{ steps.branch.outputs.name }}"
       
       - name: Check for duplicate PRs
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run
         id: pr-check
         run: |
           # Use dedicated script for comprehensive duplicate PR detection
@@ -110,7 +111,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Generate incremental report (Existing PR)
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing'
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing'
         id: incremental-report
         run: |
           echo "🔄 Generating incremental report for existing PR..."
@@ -128,7 +129,7 @@ jobs:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
       
       - name: Commit changes (New PR)
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
         run: |
           git add reports/ state/ --force
           DATE=$(date +'%Y-%m-%d')
@@ -140,13 +141,13 @@ jobs:
           echo "Changes committed successfully"
       
       - name: Push changes (New PR)
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
         run: |
           git push origin ${{ steps.branch.outputs.name }}
           echo "Changes pushed to remote branch: ${{ steps.branch.outputs.name }}"
       
       - name: Update existing PR branch (Incremental Changes)
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing' && steps.incremental-report.outputs.has_incremental_changes == 'true'
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing' && steps.incremental-report.outputs.has_incremental_changes == 'true'
         run: |
           echo "🔄 Updating existing PR #${{ steps.pr-check.outputs.target_pr_number }}"
           echo "   Target branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
@@ -172,14 +173,14 @@ jobs:
           echo "✅ Updated existing PR branch with incremental changes"
           
       - name: Skip PR update (No incremental changes)
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing' && steps.incremental-report.outputs.has_incremental_changes != 'true'
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing' && steps.incremental-report.outputs.has_incremental_changes != 'true'
         run: |
           echo "ℹ️  Skipping PR update - no incremental changes detected"
           echo "   Existing PR #${{ steps.pr-check.outputs.target_pr_number }} remains unchanged"
           echo "   Summary: ${{ steps.incremental-report.outputs.changes_summary }}"
       
       - name: Create new pull request
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
         id: create-pr
         run: |
           DATE=$(date +'%Y-%m-%d')
@@ -248,7 +249,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Update existing pull request (Incremental)
-        if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing' && steps.incremental-report.outputs.has_incremental_changes == 'true'
+        if: steps.detect-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'update_existing' && steps.incremental-report.outputs.has_incremental_changes == 'true'
         id: update-pr
         run: |
           DATE=$(date +'%Y-%m-%d')
@@ -318,10 +319,10 @@ jobs:
         run: |
           echo "=== DRY RUN SUMMARY ==="
           echo "Environment: ${{ inputs.environment }}"
-          echo "Changes detected: ${{ steps.check-changes.outputs.has-changes }}"
+          echo "Changes detected: ${{ steps.detect-changes.outputs.has-changes }}"
           echo "Force PR: ${{ inputs.force_pr }}"
           
-          if [ "${{ steps.check-changes.outputs.has-changes }}" = "true" ]; then
+          if [ "${{ steps.detect-changes.outputs.has-changes }}" = "true" ]; then
             echo "✅ Would process changes with the following workflow:"
             echo "   - Generate full Notion change report"
             echo "   - Check for duplicate PRs"
@@ -340,11 +341,11 @@ jobs:
           echo "Environment: ${{ inputs.environment }}"
           echo "Dry run mode: ${{ inputs.dry_run }}"
           echo "Force PR: ${{ inputs.force_pr }}"
-          echo "Changes detected: ${{ steps.check-changes.outputs.has-changes }}"
+          echo "Changes detected: ${{ steps.detect-changes.outputs.has-changes }}"
           
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             echo "Status: Dry run completed"
-          elif [ "${{ steps.check-changes.outputs.has-changes }}" = "true" ]; then
+          elif [ "${{ steps.detect-changes.outputs.has-changes }}" = "true" ]; then
             if [ -n "${{ steps.create-pr.outputs.pr-url }}" ]; then
               echo "Status: PR created successfully"
               echo "PR URL: ${{ steps.create-pr.outputs.pr-url }}"

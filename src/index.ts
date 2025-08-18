@@ -109,6 +109,11 @@ async function generateNotionChangeReport() {
       console.log("\n✨ 変更はありませんでした");
     }
 
+    // GitHub Actions出力変数の設定
+    console.log(`has-changes=${totalChanges.total > 0}`);
+    console.log(`total-changes=${totalChanges.total}`);
+    console.log(`report-file=${savedFilePath}`);
+    
     console.log("\n✅ Notion変更レポート生成が完了しました！");
   } catch (error) {
     console.error("❌ エラーが発生しました:", error);
