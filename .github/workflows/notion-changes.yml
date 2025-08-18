@@ -162,3 +162,67 @@ jobs:
           gh pr create --title "feat: update Notion database changes - $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')" --body-file /tmp/pr_body.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Update existing PR (Incremental Changes)
+        if: steps.detect-changes.outputs.has-changes == 'true' && steps.pr-check.outputs.action == 'update_existing'
+        run: |
+          echo "🔄 Updating existing PR #${{ steps.pr-check.outputs.target_pr_number }}"
+          echo "   Target branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
+          
+          # Fetch and checkout existing PR branch
+          git fetch origin
+          git checkout -B ${{ steps.pr-check.outputs.target_pr_branch }} origin/${{ steps.pr-check.outputs.target_pr_branch }}
+          
+          # Generate incremental report
+          REPORT_FILE="${{ steps.detect-changes.outputs.report-file }}"
+          TOTAL_CHANGES="${{ steps.detect-changes.outputs.total-changes }}"
+          TIMESTAMP=$(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M:%S JST')
+          
+          # Add new changes to existing PR branch
+          git add reports/ state/ --force
+          git commit -m "feat: add incremental Notion database changes - $(TZ=Asia/Tokyo date +'%Y-%m-%d')
+
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          
+          # Push incremental changes
+          git push origin ${{ steps.pr-check.outputs.target_pr_branch }}
+          
+          # Update PR description with latest report content
+          cat > /tmp/pr_update_body.md <<EOF
+          ## 📋 Notion Database Changes Summary (Updated)
+          
+          **Last updated**: ${TIMESTAMP}
+          **Total changes detected**: ${TOTAL_CHANGES}
+          **Latest report**: ${REPORT_FILE}
+          
+          ## 📊 Latest Changes
+          
+          EOF
+          
+          # Add the latest report content
+          if [ -f "$REPORT_FILE" ]; then
+            cat "$REPORT_FILE" >> /tmp/pr_update_body.md
+          else
+            echo "Latest report file not found: $REPORT_FILE" >> /tmp/pr_update_body.md
+          fi
+          
+          # Add footer
+          cat >> /tmp/pr_update_body.md <<EOF
+          
+          ---
+          
+          🤖 This PR was automatically updated by the Notion Change Detection workflow.
+          
+          **Previous updates**: Check the commit history for incremental changes.
+          
+          For questions or issues, please check the [workflow documentation](./docs/).
+          EOF
+          
+          # Update existing PR
+          gh pr edit "${{ steps.pr-check.outputs.target_pr_number }}" --body-file /tmp/pr_update_body.md
+          
+          echo "✅ Successfully updated existing PR #${{ steps.pr-check.outputs.target_pr_number }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
