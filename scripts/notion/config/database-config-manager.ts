@@ -7,15 +7,6 @@ export interface DatabaseConfig {
   enabled: boolean;
 }
 
-export interface EnvironmentDatabasesConfig {
-  environments: {
-    [key: string]: {
-      databases: DatabaseConfig[];
-    };
-  };
-}
-
-// 後方互換性のため
 export interface DatabasesConfig {
   databases: DatabaseConfig[];
 }
@@ -31,41 +22,15 @@ export class DatabaseConfigManager {
   async loadConfig(): Promise<DatabasesConfig> {
     try {
       const data = await fs.readFile(this.configPath, "utf-8");
-      const rawConfig = JSON.parse(data);
+      const config = JSON.parse(data) as DatabasesConfig;
 
-      // 環境別設定かどうかを判定
-      if (rawConfig.environments) {
-        // 環境別設定の場合
-        const environment = process.env.ENVIRONMENT || 'production';
-        const environmentConfig = rawConfig as EnvironmentDatabasesConfig;
-        
-        if (!environmentConfig.environments[environment]) {
-          throw new Error(`環境 '${environment}' の設定が見つかりません`);
-        }
+      // バリデーション
+      this.validateConfig(config);
 
-        const config: DatabasesConfig = {
-          databases: environmentConfig.environments[environment].databases
-        };
+      // キャッシュに保存
+      this.cachedConfig = config;
 
-        // バリデーション
-        this.validateConfig(config);
-
-        // キャッシュに保存
-        this.cachedConfig = config;
-
-        return config;
-      } else {
-        // 従来形式の場合（後方互換性）
-        const config = rawConfig as DatabasesConfig;
-        
-        // バリデーション
-        this.validateConfig(config);
-
-        // キャッシュに保存
-        this.cachedConfig = config;
-
-        return config;
-      }
+      return config;
     } catch (error: unknown) {
       if (error instanceof Error && (error as NodeJS.ErrnoException).code === "ENOENT") {
         throw new Error("設定ファイルが見つかりません");
@@ -84,16 +49,21 @@ export class DatabaseConfigManager {
       throw new Error("設定ファイルの形式が不正です");
     }
 
-    if (!Array.isArray(config.databases)) {
+    const typedConfig = config as Record<string, unknown>;
+    if (!Array.isArray(typedConfig.databases)) {
       throw new Error("設定ファイルの形式が不正です");
     }
 
-    if (config.databases.length === 0) {
+    if (typedConfig.databases.length === 0) {
       throw new Error("データベース設定が空です");
     }
 
-    for (const db of config.databases) {
-      if (!db.id || !db.name || typeof db.enabled !== "boolean") {
+    for (const db of typedConfig.databases) {
+      if (!db || typeof db !== "object") {
+        throw new Error("設定ファイルの形式が不正です");
+      }
+      const typedDb = db as Record<string, unknown>;
+      if (!typedDb.id || !typedDb.name || typeof typedDb.enabled !== "boolean") {
         throw new Error("設定ファイルの形式が不正です");
       }
     }

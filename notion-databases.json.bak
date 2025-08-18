@@ -1,0 +1,54 @@
+{
+	"environments": {
+		"test": {
+			"databases": [
+				{
+					"id": "2503666dffd18016bc31dfaf03a1892c",
+					"name": "注文管理",
+					"description": "GitHub Actions検証用 - 注文データの管理",
+					"enabled": true
+				},
+				{
+					"id": "2503666dffd18030bbbae6f7be1719a7",
+					"name": "顧客管理",
+					"description": "GitHub Actions検証用 - 顧客データの管理",
+					"enabled": true
+				},
+				{
+					"id": "2503666dffd1802cbffaf492f6eae056",
+					"name": "商品管理",
+					"description": "GitHub Actions検証用 - 商品データの管理",
+					"enabled": true
+				}
+			]
+		},
+		"production": {
+			"databases": [
+				{
+					"id": "1d1a2a12137b811ca56cd425a28d3945",
+					"name": "Liquid Object Properties",
+					"description": "Liquidオブジェクトのプロパティを管理するデータベース",
+					"enabled": true
+				},
+				{
+					"id": "1d1a2a12137b819bb9b9e2547f2f2cd2",
+					"name": "All Pages",
+					"description": "ページを管理するデータベース",
+					"enabled": true
+				},
+				{
+					"id": "1d1a2a12137b81e4bc96f6e5f5e7b0a2",
+					"name": "Liquid Variables",
+					"description": "ページで使用される変数を管理するデータベース",
+					"enabled": true
+				},
+				{
+					"id": "1d1a2a12137b81339210c6956cad6705",
+					"name": "Liquid Objects",
+					"description": "Liquidオブジェクトを管理するデータベース",
+					"enabled": true
+				}
+			]
+		}
+	}
+}

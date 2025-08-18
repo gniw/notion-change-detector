@@ -15,11 +15,136 @@ permissions:
   pull-requests: write
 
 jobs:
-  production-environment-changes:
-    uses: ./.github/workflows/_shared-notion-workflow.yml
-    with:
-      environment: production
-      dry_run: false
-      force_pr: ${{ inputs.force_pr || false }}
-    secrets:
+  notion-changes:
+    runs-on: ubuntu-latest
+    
+    env:
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Validate environment
+        run: |
+          if [ -z "$NOTION_API_KEY" ]; then
+            echo "ERROR: NOTION_API_KEY is not set"
+            exit 1
+          fi
+          echo "Environment validation passed"
+      
+      - name: Run Notion change detection
+        id: detect-changes
+        run: |
+          echo "Running Notion change detection..."
+          
+          OUTPUT=$(npm run generate-report 2>&1)
+          echo "$OUTPUT"
+          
+          # Parse GitHub Actions output variables from application
+          HAS_CHANGES=$(echo "$OUTPUT" | grep "has-changes=" | cut -d'=' -f2- | tail -1)
+          TOTAL_CHANGES=$(echo "$OUTPUT" | grep "total-changes=" | cut -d'=' -f2- | tail -1)
+          REPORT_FILE=$(echo "$OUTPUT" | grep "report-file=" | cut -d'=' -f2- | tail -1)
+          
+          echo "has-changes=${HAS_CHANGES:-false}" >> $GITHUB_OUTPUT
+          echo "total-changes=${TOTAL_CHANGES:-0}" >> $GITHUB_OUTPUT
+          echo "report-file=${REPORT_FILE}" >> $GITHUB_OUTPUT
+          
+          if [ "${{ inputs.force_pr }}" = "true" ]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "Force PR enabled - overriding change detection"
+          fi
+          
+          echo "Change detection completed"
+      
+      - name: Check for changes
+        id: check-changes
+        run: |
+          # Check if report files were generated
+          if ls reports/*.md 1> /dev/null 2>&1; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in reports directory"
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          fi
+      
+      - name: Configure Git
+        if: steps.detect-changes.outputs.has-changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      
+      - name: Generate branch name
+        if: steps.detect-changes.outputs.has-changes == 'true'
+        id: branch-name
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          BRANCH_NAME="notion-changes-${TIMESTAMP}"
+          echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "Generated branch name: ${BRANCH_NAME}"
+      
+      - name: Create and switch to new branch
+        if: steps.detect-changes.outputs.has-changes == 'true'
+        run: |
+          git checkout -b ${{ steps.branch-name.outputs.name }}
+          echo "Switched to branch: ${{ steps.branch-name.outputs.name }}"
+      
+      - name: Check for duplicate PRs
+        if: steps.detect-changes.outputs.has-changes == 'true'
+        id: pr-check
+        run: |
+          # Use dedicated script for comprehensive duplicate PR detection
+          ./scripts/check-duplicate-prs.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Commit changes (New PR)
+        if: steps.detect-changes.outputs.has-changes == 'true' && steps.pr-check.outputs.action == 'create_new'
+        run: |
+          git add reports/ state/ --force
+          git commit -m "feat: update Notion database change report
+
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+      
+      - name: Push branch and create PR (New PR)
+        if: steps.detect-changes.outputs.has-changes == 'true' && steps.pr-check.outputs.action == 'create_new'
+        run: |
+          git push origin ${{ steps.branch-name.outputs.name }}
+          
+          gh pr create --title "feat: update Notion database changes ($(date +'%Y-%m-%d %H:%M'))" --body "$(cat <<'EOF'
+          ## 📋 Notion Database Changes Summary
+          
+          **Generated at**: $(date +'%Y-%m-%d %H:%M:%S JST')
+          **Total changes detected**: ${{ steps.detect-changes.outputs.total-changes }}
+          **Report file**: ${{ steps.detect-changes.outputs.report-file }}
+          
+          ### 📊 Change Detection Results
+          
+          This PR contains automatically detected changes from the configured Notion databases. Please review the attached markdown report for detailed information about what has changed.
+          
+          ### 📁 Files in This PR
+          
+          - **Report**: ${{ steps.detect-changes.outputs.report-file }}
+          - **State files**: Updated database state snapshots
+          
+          ---
+          
+          🤖 This PR was automatically generated by the Notion Change Detection workflow.
+          
+          For questions or issues, please check the [workflow documentation](./docs/).
+          EOF
+          )"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

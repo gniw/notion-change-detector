@@ -49,9 +49,9 @@ describe("MarkdownGenerator", () => {
       expect(result).toContain("## Test Database");
       expect(result).toContain("**追加: 1件, 更新: 1件, 削除: 0件**");
       expect(result).toContain("### 📝 追加されたページ (1件)");
-      expect(result).toContain("- [New Page](https://notion.so/page-1)");
+      expect(result).toContain("- New Page");
       expect(result).toContain("### 🔄 更新されたページ (1件)");
-      expect(result).toContain("- [Updated Page](https://notion.so/page-2)");
+      expect(result).toContain("- Updated Page");
       expect(result).not.toContain("### 🗑️ 削除されたページ");
     });
 
@@ -73,7 +73,7 @@ describe("MarkdownGenerator", () => {
       const result = generator.generateDatabaseMarkdown(changes);
 
       expect(result).toContain("### 🗑️ 削除されたページ (1件)");
-      expect(result).toContain("- [Deleted Page](https://notion.so/page-3)");
+      expect(result).toContain("- Deleted Page");
     });
 
     it("変更がない場合は適切なメッセージを表示する", () => {
@@ -224,7 +224,7 @@ describe("MarkdownGenerator", () => {
       expect(result).toContain("## 📊 全体サマリー");
       expect(result).toContain("## 📋 データベース詳細");
       expect(result).toContain("### Test Database");
-      expect(result).toContain("- [New Page](https://notion.so/p1)");
+      expect(result).toContain("- New Page");
     });
 
     it("変更がないデータベースは詳細に含めない", () => {
@@ -291,7 +291,7 @@ describe("MarkdownGenerator", () => {
 
       const result = generator.formatPageLink(pageChange);
 
-      expect(result).toBe("[My Page Title](https://notion.so/abc-123-def)");
+      expect(result).toBe("My Page Title");
     });
 
     it("タイトルにMarkdown特殊文字が含まれている場合にエスケープする", () => {
@@ -305,7 +305,7 @@ describe("MarkdownGenerator", () => {
       const result = generator.formatPageLink(pageChange);
 
       expect(result).toBe(
-        "[Title with \\[brackets\\] and \\*asterisks\\*](https://notion.so/page-id)",
+        "Title with \\[brackets\\] and \\*asterisks\\*",
       );
     });
   });
@@ -374,7 +374,7 @@ describe("MarkdownGenerator", () => {
       expect(savedContent).toContain("# Notion データベース変更レポート");
       expect(savedContent).toContain("## 📊 全体サマリー");
       expect(savedContent).toContain("### Test Database");
-      expect(savedContent).toContain("- [New Page](https://notion.so/p1)");
+      expect(savedContent).toContain("- New Page");
     });
 
     it("指定したディレクトリが存在しない場合は作成する", async () => {

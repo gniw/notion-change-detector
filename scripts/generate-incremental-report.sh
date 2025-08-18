@@ -1,21 +1,14 @@
 #!/bin/bash
 
 # GitHub Actions用の増分レポート生成スクリプト
-# Usage: ./generate-incremental-report.sh <environment> [pr-branch]
+# Usage: ./generate-incremental-report.sh [pr-branch]
 # Environment: NOTION_API_KEY が必要
 
 set -euo pipefail
 
-ENVIRONMENT="${1:-}"
-PR_BRANCH="${2:-}"
+PR_BRANCH="${1:-}"
 
-if [ -z "$ENVIRONMENT" ]; then
-    echo "Error: Environment parameter is required"
-    echo "Usage: $0 <test|production> [pr-branch]"
-    exit 1
-fi
-
-echo "🔄 Generating incremental report for $ENVIRONMENT environment..."
+echo "🔄 Generating incremental report..."
 
 # TypeScriptスクリプトを現在のディレクトリに作成
 cat > ./temp-incremental-report-generator.ts <<'EOF'
@@ -30,13 +23,12 @@ import fs from 'node:fs/promises';
 import path from 'path';
 
 interface ScriptOptions {
-  environment: string;
   prBranch?: string;
   outputDir: string;
 }
 
 async function generateIncrementalReport(options: ScriptOptions) {
-  console.log(`🚀 Starting incremental report generation for ${options.environment} environment...`);
+  console.log(`🚀 Starting incremental report generation...`);
 
   try {
     // 1. データベース設定の読み込み
@@ -108,7 +100,6 @@ async function generateIncrementalReport(options: ScriptOptions) {
       
       const reportOptions = {
         date: new Date().toISOString().split('T')[0],
-        environment: options.environment,
         includeTimestamps: true,
         maxChangesPerDatabase: 20
       };
@@ -119,7 +110,6 @@ async function generateIncrementalReport(options: ScriptOptions) {
         // レポートファイルの保存
         await fs.mkdir(options.outputDir, { recursive: true });
         const fileName = reportGenerator.generateIncrementalReportFileName(
-          options.environment,
           reportOptions.date
         );
         const filePath = path.join(options.outputDir, fileName);
@@ -161,16 +151,9 @@ async function generateIncrementalReport(options: ScriptOptions) {
 
 // CLI引数の解析
 const args = process.argv.slice(2);
-const environment = args[0];
-const prBranch = args[1];
-
-if (!environment) {
-  console.error("Error: Environment parameter is required");
-  process.exit(1);
-}
+const prBranch = args[0];
 
 const options: ScriptOptions = {
-  environment,
   prBranch,
   outputDir: './reports'
 };
@@ -180,7 +163,7 @@ EOF
 
 # TypeScript実行
 echo "🔧 Executing incremental report generation..."
-npx tsx ./temp-incremental-report-generator.ts "$ENVIRONMENT" "$PR_BRANCH"
+npx tsx ./temp-incremental-report-generator.ts "$PR_BRANCH"
 
 # 一時ファイルのクリーンアップ
 rm -f ./temp-incremental-report-generator.ts

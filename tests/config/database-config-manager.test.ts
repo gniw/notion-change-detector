@@ -49,30 +49,6 @@ describe("DatabaseConfigManager", () => {
       ],
     };
 
-    const validEnvironmentConfig = {
-      environments: {
-        test: {
-          databases: [
-            {
-              id: "test-db-1",
-              name: "Test DB 1",
-              description: "テスト環境のデータベース1",
-              enabled: true,
-            },
-          ],
-        },
-        production: {
-          databases: [
-            {
-              id: "prod-db-1",
-              name: "Production DB 1",
-              description: "本番環境のデータベース1",
-              enabled: true,
-            },
-          ],
-        },
-      },
-    };
 
     beforeEach(() => {
       configManager = new DatabaseConfigManager();
@@ -124,56 +100,6 @@ describe("DatabaseConfigManager", () => {
       await expect(configManager.loadConfig()).rejects.toThrow("データベース設定が空です");
     });
 
-    describe("環境別設定", () => {
-      it("環境別設定でproduction環境を読み込める", async () => {
-        process.env.ENVIRONMENT = "production";
-        mockedFs.readFile.mockResolvedValue(JSON.stringify(validEnvironmentConfig));
-
-        const result = await configManager.loadConfig();
-
-        expect(result.databases).toHaveLength(1);
-        expect(result.databases[0].id).toBe("prod-db-1");
-        expect(result.databases[0].name).toBe("Production DB 1");
-        
-        // 環境変数をクリア
-        delete process.env.ENVIRONMENT;
-      });
-
-      it("環境別設定でtest環境を読み込める", async () => {
-        process.env.ENVIRONMENT = "test";
-        mockedFs.readFile.mockResolvedValue(JSON.stringify(validEnvironmentConfig));
-
-        const result = await configManager.loadConfig();
-
-        expect(result.databases).toHaveLength(1);
-        expect(result.databases[0].id).toBe("test-db-1");
-        expect(result.databases[0].name).toBe("Test DB 1");
-        
-        // 環境変数をクリア
-        delete process.env.ENVIRONMENT;
-      });
-
-      it("ENVIRONMENT未設定時はproductionをデフォルトとして使用", async () => {
-        // ENVIRONMENTが未設定であることを確認
-        delete process.env.ENVIRONMENT;
-        mockedFs.readFile.mockResolvedValue(JSON.stringify(validEnvironmentConfig));
-
-        const result = await configManager.loadConfig();
-
-        expect(result.databases).toHaveLength(1);
-        expect(result.databases[0].id).toBe("prod-db-1");
-      });
-
-      it("存在しない環境を指定した場合はエラーを投げる", async () => {
-        process.env.ENVIRONMENT = "staging";
-        mockedFs.readFile.mockResolvedValue(JSON.stringify(validEnvironmentConfig));
-
-        await expect(configManager.loadConfig()).rejects.toThrow("環境 'staging' の設定が見つかりません");
-        
-        // 環境変数をクリア
-        delete process.env.ENVIRONMENT;
-      });
-    });
   });
 
   describe("getEnabledDatabases", () => {

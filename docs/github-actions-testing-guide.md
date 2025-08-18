@@ -27,12 +27,11 @@ npm run test:act
 
 ### Phase 2: Testing on GitHub
 ```bash
-# 1. Use test workflow
-# GitHub UI → Actions → "Notion Changes Detection (Test)" → "Run workflow"
+# 1. Use production workflow with dry run
+# GitHub UI → Actions → "Notion Changes Detection" → "Run workflow"
 
 # 2. Parameter settings
-# - dry_run: true (recommended)
-# - test_database_only: true (recommended)
+# - dry_run: true (recommended for testing)
 ```
 
 ### Phase 3: Pre-production Verification
@@ -43,16 +42,16 @@ npm run test:act
 
 ## 🛡️ Safe Testing Methods
 
-### 1. Using Test Configuration
+### 1. Using Production Configuration
 
 **Secrets configuration:**
 ```
-NOTION_API_KEY_TEST=<test-only API token>
+NOTION_API_KEY=<your-notion-api-token>
 ```
 
-**Test database:**
-- Use test Notion database separated from production data
-- Create and use `notion-databases-test.json`
+**Database configuration:**
+- Configure your production databases in `notion-databases.json`
+- Use the `enabled` field to control which databases are monitored
 
 ### 2. Utilizing Dry Run Mode
 
@@ -155,7 +154,7 @@ Repository → Actions → Workflow run → Job → Step
 - [ ] Monitoring and notification settings completed
 
 ### Production Deploy Steps
-1. Disable test workflow
+1. Configure production databases in notion-databases.json
 2. Enable production workflow schedule
 3. Manually trigger initial execution
 4. Verify execution results and PR content
