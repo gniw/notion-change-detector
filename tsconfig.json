@@ -14,7 +14,7 @@
     "noUncheckedSideEffectImports": true,
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./scripts/notion",
     "removeComments": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -23,7 +23,7 @@
     "verbatimModuleSyntax": true
   },
   "include": [
-    "src/**/*"
+    "scripts/notion/**/*"
   ],
   "exclude": [
     "node_modules",

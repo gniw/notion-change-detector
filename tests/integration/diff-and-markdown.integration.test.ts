@@ -1,10 +1,10 @@
 #!/usr/bin/env tsx
 
 import { config } from "dotenv";
-import { MultiDatabaseManager } from "../../src/config/multi-database-manager";
-import { MarkdownGenerator } from "../../src/markdown/generator";
-import type { DatabaseChanges } from "../../src/notion/differ";
-import { NotionDiffer } from "../../src/notion/differ";
+import { MultiDatabaseManager } from "../../scripts/notion/config/multi-database-manager";
+import { MarkdownGenerator } from "../../scripts/notion/markdown/generator";
+import type { DatabaseChanges } from "../../scripts/notion/notion/differ";
+import { NotionDiffer } from "../../scripts/notion/notion/differ";
 
 config({ path: ".env.local" });
 

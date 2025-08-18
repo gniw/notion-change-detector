@@ -1,23 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Client } from '@notionhq/client';
-import { DatabaseConfigManager } from "../../src/config/database-config-manager";
-import { MultiDatabaseManager } from "../../src/config/multi-database-manager";
-import { NotionClient } from "../../src/notion/client";
-import { NotionDatabase } from "../../src/notion/database";
-import { StateManager } from "../../src/storage/state-manager";
+import { DatabaseConfigManager } from "../../scripts/notion/config/database-config-manager";
+import { MultiDatabaseManager } from "../../scripts/notion/config/multi-database-manager";
+import { NotionClient } from "../../scripts/notion/notion/client";
+import { NotionDatabase } from "../../scripts/notion/notion/database";
+import { StateManager } from "../../scripts/notion/storage/state-manager";
 
 // 依存モジュールをモック
-vi.mock("../../src/config/database-config-manager");
-vi.mock("../../src/notion/client");
-vi.mock("../../src/notion/database");
-vi.mock("../../src/storage/state-manager");
+vi.mock("../../scripts/notion/config/database-config-manager");
+vi.mock("../../scripts/notion/notion/client");
+vi.mock("../../scripts/notion/notion/database");
+vi.mock("../../scripts/notion/storage/state-manager");
 
 const MockedDatabaseConfigManager = vi.mocked(DatabaseConfigManager);
 const MockedNotionClient = vi.mocked(NotionClient);
 const MockedNotionDatabase = vi.mocked(NotionDatabase);
 const MockedStateManager = vi.mocked(StateManager);
 
-import type { DatabasesConfig } from "../../src/config/database-config-manager";
+import type { DatabasesConfig } from "../../scripts/notion/config/database-config-manager";
 
 type MockedDatabaseConfigManagerType = {
   loadConfig: vi.Mock<[], Promise<DatabasesConfig>>;

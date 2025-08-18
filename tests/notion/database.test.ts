@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Client } from '@notionhq/client';
-import { NotionClient } from "../../src/notion/client";
-import { NotionDatabase } from "../../src/notion/database";
+import { NotionClient } from "../../scripts/notion/notion/client";
+import { NotionDatabase } from "../../scripts/notion/notion/database";
 
 // NotionClientをモック
-vi.mock("../../src/notion/client");
+vi.mock("../../scripts/notion/notion/client");
 const MockedNotionClient = vi.mocked(NotionClient);
 
 describe("NotionDatabase", () => {

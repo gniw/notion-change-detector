@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, } from "vitest";
-import { type DatabaseChanges, NotionDiffer, } from "../../src/notion/differ";
+import { type DatabaseChanges, NotionDiffer, } from "../../scripts/notion/notion/differ";
 
 describe("NotionDiffer", () => {
   let differ: NotionDiffer;

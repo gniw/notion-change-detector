@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DatabaseConfigManager } from "../../src/config/database-config-manager";
+import { DatabaseConfigManager } from "../../scripts/notion/config/database-config-manager";
 
 // ファイルシステムをモック
 vi.mock("fs/promises");

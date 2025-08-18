@@ -4,8 +4,8 @@ import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoint
 // .env.local ファイルを明示的に読み込み
 dotenv.config({ path: ".env.local" });
 
-import { MultiDatabaseManager } from "../../src/config/multi-database-manager";
-import { PropertyExtractor } from "../../src/notion/property-extractor";
+import { MultiDatabaseManager } from "../../scripts/notion/config/multi-database-manager";
+import { PropertyExtractor } from "../../scripts/notion/notion/property-extractor";
 
 async function testMultiDatabases() {
   console.log("🚀 複数データベース統合テストを開始します...\n");

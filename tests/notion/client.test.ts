@@ -1,6 +1,6 @@
 import { Client } from "@notionhq/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { NotionClient } from "../../src/notion/client";
+import { NotionClient } from "../../scripts/notion/notion/client";
 
 // Notion APIクライアントをモック
 vi.mock("@notionhq/client");

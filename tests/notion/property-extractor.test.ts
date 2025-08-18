@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach } from "vitest";
-import { PropertyExtractor } from "../../src/notion/property-extractor";
+import { PropertyExtractor } from "../../scripts/notion/notion/property-extractor";
 
 describe("PropertyExtractor", () => {
   let extractor: PropertyExtractor;

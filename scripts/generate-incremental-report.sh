@@ -19,13 +19,13 @@ echo "🔄 Generating incremental report for $ENVIRONMENT environment..."
 
 # TypeScriptスクリプトを現在のディレクトリに作成
 cat > ./temp-incremental-report-generator.ts <<'EOF'
-import { DatabaseConfigManager } from './src/config/database-config-manager';
-import { NotionClient } from './src/notion/client';
-import { PropertyExtractor } from './src/notion/property-extractor';
-import { StateManager } from './src/storage/state-manager';
-import { StateComparison } from './src/github-actions/state-comparison';
-import { IncrementalReportGenerator } from './src/github-actions/incremental-report-generator';
-import { GitOperations } from './src/github-actions/git-operations';
+import { DatabaseConfigManager } from './scripts/notion/config/database-config-manager';
+import { NotionClient } from './scripts/notion/notion/client';
+import { PropertyExtractor } from './scripts/notion/notion/property-extractor';
+import { StateManager } from './scripts/notion/storage/state-manager';
+import { StateComparison } from './scripts/notion/github-actions/state-comparison';
+import { IncrementalReportGenerator } from './scripts/notion/github-actions/incremental-report-generator';
+import { GitOperations } from './scripts/notion/github-actions/git-operations';
 import fs from 'node:fs/promises';
 import path from 'path';
 

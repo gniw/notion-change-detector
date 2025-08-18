@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { StateManager } from "../../src/storage/state-manager";
+import { StateManager } from "../../scripts/notion/storage/state-manager";
 
 // ファイルシステムをモック
 vi.mock("fs/promises");
