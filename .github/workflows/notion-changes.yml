@@ -123,21 +123,34 @@ jobs:
         run: |
           git push origin ${{ steps.branch-name.outputs.name }}
           
-          gh pr create --title "feat: update Notion database changes ($(date +'%Y-%m-%d %H:%M'))" --body "$(cat <<'EOF'
+          # Create PR body with actual report content
+          REPORT_FILE="${{ steps.detect-changes.outputs.report-file }}"
+          TOTAL_CHANGES="${{ steps.detect-changes.outputs.total-changes }}"
+          
+          # Generate timestamp in JST
+          TIMESTAMP=$(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M:%S JST')
+          
+          # Create PR body with report content
+          cat > /tmp/pr_body.md <<EOF
           ## 📋 Notion Database Changes Summary
           
-          **Generated at**: $(date +'%Y-%m-%d %H:%M:%S JST')
-          **Total changes detected**: ${{ steps.detect-changes.outputs.total-changes }}
-          **Report file**: ${{ steps.detect-changes.outputs.report-file }}
+          **Generated at**: ${TIMESTAMP}
+          **Total changes detected**: ${TOTAL_CHANGES}
+          **Report file**: ${REPORT_FILE}
           
-          ### 📊 Change Detection Results
+          ## 📊 Detailed Changes
           
-          This PR contains automatically detected changes from the configured Notion databases. Please review the attached markdown report for detailed information about what has changed.
+          EOF
           
-          ### 📁 Files in This PR
+          # Add the actual report content
+          if [ -f "$REPORT_FILE" ]; then
+            cat "$REPORT_FILE" >> /tmp/pr_body.md
+          else
+            echo "Report file not found: $REPORT_FILE" >> /tmp/pr_body.md
+          fi
           
-          - **Report**: ${{ steps.detect-changes.outputs.report-file }}
-          - **State files**: Updated database state snapshots
+          # Add footer
+          cat >> /tmp/pr_body.md <<EOF
           
           ---
           
@@ -145,6 +158,7 @@ jobs:
           
           For questions or issues, please check the [workflow documentation](./docs/).
           EOF
-          )"
+          
+          gh pr create --title "feat: update Notion database changes - $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')" --body-file /tmp/pr_body.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
