@@ -130,7 +130,7 @@ jobs:
       - name: Commit changes (New PR)
         if: steps.check-changes.outputs.has-changes == 'true' && !inputs.dry_run && steps.pr-check.outputs.action == 'create_new'
         run: |
-          git add reports/ --force
+          git add reports/ state/ --force
           DATE=$(date +'%Y-%m-%d')
           git commit -m "feat: add automated Notion changes report for ${{ inputs.environment }} environment - ${DATE}
 
