@@ -1,8 +1,12 @@
 {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   "lastSync": "2025-08-18T06:58:46.339Z",
 =======
   "lastSync": "2025-08-18T08:18:46.176Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-18T08:21:40.270Z",
 >>>>>>> Stashed changes
   "pages": [
     {
@@ -10,7 +14,11 @@
       "last_edited_time": "2025-08-18T05:59:00.000Z",
       "properties": {
         "注文日": "2025-08-18",
+<<<<<<< Updated upstream
         "合計金額": 3900,
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
         "支払い方法": "クレジットカード",
         "顧客名": [
           "2503666d-ffd1-80e5-9bae-c915d778af84"
