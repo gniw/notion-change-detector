@@ -128,7 +128,7 @@ export class MarkdownGenerator {
 
   formatPageLink(pageChange: PageChange): string {
     const escapedTitle = this.escapeMarkdown(pageChange.title);
-    return `[${escapedTitle}](https://notion.so/${pageChange.id})`;
+    return escapedTitle;
   }
 
   calculateTotalChanges(allChanges: DatabaseChanges[]): TotalChanges {

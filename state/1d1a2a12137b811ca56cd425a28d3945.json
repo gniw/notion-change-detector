@@ -1,9 +1,9 @@
 {
-  "lastSync": "2025-08-14T10:06:18.389Z",
+  "lastSync": "2025-08-18T01:19:59.613Z",
   "pages": [
     {
       "id": "24fa2a12-137b-80b5-85eb-ee23ad83cbce",
-      "last_edited_time": "2025-08-14T10:05:00.000Z",
+      "last_edited_time": "2025-08-15T07:27:00.000Z",
       "properties": {
         "Object": [
           "1d1a2a12-137b-81d8-8a8b-e4238e7556c0"
@@ -17,13 +17,13 @@
         "Type": null,
         "Input": "",
         "ReferencedObject_Name": [],
-        "Description": "プロパティ名はまだないです",
-        "Name": ""
+        "Description": "テスト用のプロパティです",
+        "Name": "test_props"
       }
     },
     {
       "id": "24fa2a12-137b-804a-aaea-cbcf48e364cc",
-      "last_edited_time": "2025-08-14T10:05:00.000Z",
+      "last_edited_time": "2025-08-15T07:27:00.000Z",
       "properties": {
         "Object": [
           "1d1a2a12-137b-81d8-8a8b-e4238e7556c0"
@@ -37,8 +37,8 @@
         "Type": "string",
         "Input": "{{ admin.テストプロパティ }}",
         "ReferencedObject_Name": [],
-        "Description": "テスト用のプロパティ②",
-        "Name": "テストプロパティ②"
+        "Description": "テスト用のプロパティ",
+        "Name": "テストプロパティ"
       }
     },
     {
