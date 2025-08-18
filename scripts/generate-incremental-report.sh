@@ -17,15 +17,15 @@ fi
 
 echo "🔄 Generating incremental report for $ENVIRONMENT environment..."
 
-# TypeScriptスクリプト実行用の一時ファイルを作成
-cat > /tmp/incremental-report-generator.ts <<'EOF'
-import { DatabaseConfigManager } from '../src/config/database-config-manager';
-import { NotionClient } from '../src/notion/client';
-import { PropertyExtractor } from '../src/notion/property-extractor';
-import { StateManager } from '../src/storage/state-manager';
-import { StateComparison } from '../src/github-actions/state-comparison';
-import { IncrementalReportGenerator } from '../src/github-actions/incremental-report-generator';
-import { GitOperations } from '../src/github-actions/git-operations';
+# TypeScriptスクリプトを現在のディレクトリに作成
+cat > ./temp-incremental-report-generator.ts <<'EOF'
+import { DatabaseConfigManager } from './src/config/database-config-manager';
+import { NotionClient } from './src/notion/client';
+import { PropertyExtractor } from './src/notion/property-extractor';
+import { StateManager } from './src/storage/state-manager';
+import { StateComparison } from './src/github-actions/state-comparison';
+import { IncrementalReportGenerator } from './src/github-actions/incremental-report-generator';
+import { GitOperations } from './src/github-actions/git-operations';
 import fs from 'node:fs/promises';
 import path from 'path';
 
@@ -128,9 +128,9 @@ async function generateIncrementalReport(options: ScriptOptions) {
         console.log(`💾 Incremental report saved: ${filePath}`);
 
         // GitHub Actions用の出力変数設定
-        console.log(`##[set-output name=has_incremental_changes]true`);
-        console.log(`##[set-output name=incremental_report_file]${filePath}`);
-        console.log(`##[set-output name=changes_summary]${reportGenerator.generateBriefSummary(delta)}`);
+        console.log(`has-incremental-changes=true`);
+        console.log(`incremental-report-file=${filePath}`);
+        console.log(`changes-summary=${reportGenerator.generateBriefSummary(delta)}`);
         
         // 現在のstateを保存（次回の比較用）
         for (const [dbId, state] of Object.entries(currentStates)) {
@@ -144,17 +144,17 @@ async function generateIncrementalReport(options: ScriptOptions) {
     }
 
     console.log("ℹ️  No incremental changes detected");
-    console.log(`##[set-output name=has_incremental_changes]false`);
-    console.log(`##[set-output name=incremental_report_file]`);
-    console.log(`##[set-output name=changes_summary]No new changes detected`);
+    console.log(`has-incremental-changes=false`);
+    console.log(`incremental-report-file=`);
+    console.log(`changes-summary=No new changes detected`);
     
     process.exit(0);
 
   } catch (error: any) {
     console.error("❌ Error during incremental report generation:");
     console.error(error.message);
-    console.log(`##[set-output name=has_incremental_changes]error`);
-    console.log(`##[set-output name=error_message]${error.message}`);
+    console.log(`has-incremental-changes=error`);
+    console.log(`error-message=${error.message}`);
     process.exit(1);
   }
 }
@@ -180,9 +180,9 @@ EOF
 
 # TypeScript実行
 echo "🔧 Executing incremental report generation..."
-npx tsx /tmp/incremental-report-generator.ts "$ENVIRONMENT" "$PR_BRANCH"
+npx tsx ./temp-incremental-report-generator.ts "$ENVIRONMENT" "$PR_BRANCH"
 
 # 一時ファイルのクリーンアップ
-rm -f /tmp/incremental-report-generator.ts
+rm -f ./temp-incremental-report-generator.ts
 
 echo "✅ Incremental report generation script completed"

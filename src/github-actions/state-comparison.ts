@@ -1,5 +1,6 @@
-import { DatabaseState } from "../storage/state-manager";
-import { NotionDiffer, DatabaseChanges } from "../notion/differ";
+import type { DatabaseState } from "../storage/state-manager";
+import { NotionDiffer } from "../notion/differ";
+import type { DatabaseChanges } from "../notion/differ";
 
 /**
  * GitHub Actions用のState比較ユーティリティ

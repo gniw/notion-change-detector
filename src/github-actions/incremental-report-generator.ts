@@ -1,4 +1,4 @@
-import { StateDelta, MultiDatabaseStateDelta } from "./state-comparison";
+import type { StateDelta, MultiDatabaseStateDelta } from "./state-comparison";
 
 /**
  * GitHub Actions用の増分レポート生成器

@@ -117,7 +117,13 @@ jobs:
           echo "Previous PR branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
           
           # Generate incremental report using the dedicated script
-          ./scripts/generate-incremental-report.sh "${{ inputs.environment }}" "${{ steps.pr-check.outputs.target_pr_branch }}"
+          OUTPUT=$(./scripts/generate-incremental-report.sh "${{ inputs.environment }}" "${{ steps.pr-check.outputs.target_pr_branch }}")
+          echo "$OUTPUT"
+          
+          # Parse outputs and set GitHub Actions outputs
+          echo "$OUTPUT" | grep "has-incremental-changes=" | cut -d'=' -f2- | head -1 | xargs -I {} echo "has_incremental_changes={}" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" | grep "incremental-report-file=" | cut -d'=' -f2- | head -1 | xargs -I {} echo "incremental_report_file={}" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" | grep "changes-summary=" | cut -d'=' -f2- | head -1 | xargs -I {} echo "changes_summary={}" >> $GITHUB_OUTPUT
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
       

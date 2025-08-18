@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import fs from "node:fs/promises";
 import path from "path";
-import { DatabaseState } from "../storage/state-manager";
+import type { DatabaseState } from "../storage/state-manager";
 
 /**
  * GitHub Actions用のGit操作ユーティリティ

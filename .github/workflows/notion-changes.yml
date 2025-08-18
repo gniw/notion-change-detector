@@ -20,6 +20,6 @@ jobs:
     with:
       environment: production
       dry_run: false
-      force_pr: ${{ inputs.force_pr }}
+      force_pr: ${{ inputs.force_pr || false }}
     secrets:
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
