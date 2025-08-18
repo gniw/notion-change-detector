@@ -1,7 +1,24 @@
 {
+<<<<<<< Updated upstream
   "lastSync": "2025-08-18T06:58:46.603Z",
   "pages": [
     {
+=======
+  "lastSync": "2025-08-18T08:18:46.359Z",
+  "pages": [
+    {
+      "id": "2533666d-ffd1-80f8-b025-f88561dbfeaa",
+      "last_edited_time": "2025-08-18T07:03:00.000Z",
+      "properties": {
+        "最終接触日": "2025-08-03",
+        "顧客ID": 1003,
+        "電話番号": "042-123-4567",
+        "連絡先メール": "suzuki.jiro@example.com",
+        "顧客名": "鈴木次郎"
+      }
+    },
+    {
+>>>>>>> Stashed changes
       "id": "2503666d-ffd1-8041-90b7-d6c69d88d780",
       "last_edited_time": "2025-08-15T05:00:00.000Z",
       "properties": {
