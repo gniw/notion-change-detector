@@ -34,3 +34,6 @@ coverage/
 # Generated reports
 reports/
 test-reports/
+
+# Backup files
+*.bak
