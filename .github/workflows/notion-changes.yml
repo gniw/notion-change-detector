@@ -169,9 +169,16 @@ jobs:
           echo "🔄 Updating existing PR #${{ steps.pr-check.outputs.target_pr_number }}"
           echo "   Target branch: ${{ steps.pr-check.outputs.target_pr_branch }}"
           
+          # Stash any untracked files that might conflict
+          git add reports/ state/ --force
+          git stash push -u -m "Temp stash before incremental update"
+          
           # Fetch and checkout existing PR branch
           git fetch origin
           git checkout -B ${{ steps.pr-check.outputs.target_pr_branch }} origin/${{ steps.pr-check.outputs.target_pr_branch }}
+          
+          # Apply the stashed changes
+          git stash pop || echo "No conflicts in stash pop"
           
           # Generate incremental report
           REPORT_FILE="${{ steps.detect-changes.outputs.report-file }}"
