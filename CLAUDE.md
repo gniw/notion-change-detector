@@ -18,18 +18,18 @@ This is a TDD-based Node.js TypeScript project that detects changes in Notion da
 
 ## Architecture Overview
 
-The project follows a modular architecture with planned structure:
+The project follows a modular architecture with implemented structure:
 
 ```
-src/
-├── notion/          # Notion API client and database operations
-├── github/          # GitHub API client and PR management
-├── markdown/        # Markdown generation for change summaries
+scripts/notion/
+├── config/          # Database configuration management
+├── markdown/        # Markdown report generation
+├── notion/          # Notion API client and operations
 ├── storage/         # State management and persistence
-├── config/          # Configuration management for multiple databases
-├── scheduler/       # Cron-based scheduling
 └── index.ts         # Main application entry point
 ```
+
+**詳細仕様**: プロジェクトの完全な仕様は `SPECIFICATIONS.md` を参照してください。
 
 ## Environment Configuration
 
@@ -70,5 +70,23 @@ This project follows Test-Driven Development (TDD):
 3. Refactor while maintaining test coverage
 4. Focus on one feature/module at a time
 
-Phase 1 priority is establishing the Notion API client foundation.
+## Current Implementation Status
+
+✅ **完了済み機能**:
+- Notion API 統合とデータ取得
+- 変更検出システム（追加・更新・削除）
+- プロパティレベル差分追跡
+- 日本語マークダウンレポート生成
+- GitHub Actions 自動化
+- インクリメンタルPR更新機能
+- 完全なテストカバレッジ（505テストケース）
+
+## References
+
+- **完全仕様書**: `SPECIFICATIONS.md` - システム全体の詳細仕様
+- **GitHub Actions設定**: `.github/workflows/notion-changes.yml`
+- **テストスイート**: `tests/` - TDDベースの包括的テスト
+
+## Commit Guidelines
+
 - コミットメッセージはConventionalCommitsに則り、英語で記述する
