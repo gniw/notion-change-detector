@@ -1,0 +1,146 @@
+{
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+  "lastSync": "2025-08-18T06:58:46.603Z",
+  "pages": [
+    {
+=======
+  "lastSync": "2025-08-18T08:18:46.359Z",
+=======
+  "lastSync": "2025-08-18T08:21:40.506Z",
+>>>>>>> Stashed changes
+  "pages": [
+    {
+      "id": "2533666d-ffd1-80f8-b025-f88561dbfeaa",
+      "last_edited_time": "2025-08-18T07:03:00.000Z",
+      "properties": {
+        "最終接触日": "2025-08-03",
+        "顧客ID": 1003,
+        "電話番号": "042-123-4567",
+        "連絡先メール": "suzuki.jiro@example.com",
+        "顧客名": "鈴木次郎"
+      }
+    },
+    {
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-18T09:08:40.245Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-19T00:24:47.680Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-19T09:06:17.486Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-20T00:23:40.807Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-20T09:06:49.964Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-21T00:22:57.694Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-21T09:06:29.278Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-22T00:23:51.080Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-22T09:06:16.257Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-23T00:23:18.213Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-23T09:05:39.317Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-24T00:26:42.787Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-24T09:05:32.699Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-25T00:25:12.482Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
+      "id": "2503666d-ffd1-8041-90b7-d6c69d88d780",
+      "last_edited_time": "2025-08-15T05:00:00.000Z",
+      "properties": {
+        "最終接触日": "2025-08-11",
+        "顧客ID": 1002,
+        "電話番号": "045-9876-5432",
+        "連絡先メール": "tanaka.ichiro@example.com",
+        "顧客名": "田中一郎"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-80ed-b0bb-c25bd2308bcd",
+      "last_edited_time": "2025-08-15T05:00:00.000Z",
+      "properties": {
+        "最終接触日": "2025-08-14",
+        "顧客ID": 1000,
+        "電話番号": "06-8765-4321",
+        "連絡先メール": "satou.hanako@example.com",
+        "顧客名": "佐藤花子"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-80e5-9bae-c915d778af84",
+      "last_edited_time": "2025-08-15T05:00:00.000Z",
+      "properties": {
+        "最終接触日": "2025-08-13",
+        "顧客ID": 1001,
+        "電話番号": "03-1234-5678",
+        "連絡先メール": "yamada.taro@example.com",
+        "顧客名": "山田太郎"
+      }
+    }
+  ]
+}

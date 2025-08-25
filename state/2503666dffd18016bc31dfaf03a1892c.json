@@ -1,0 +1,201 @@
+{
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+  "lastSync": "2025-08-18T06:58:46.339Z",
+=======
+  "lastSync": "2025-08-18T08:18:46.176Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-18T08:21:40.270Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-18T09:08:40.093Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-19T00:24:46.688Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-19T09:06:16.257Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-20T00:23:40.416Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-20T09:06:44.705Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-21T00:22:57.545Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-21T09:06:28.801Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-22T00:23:49.314Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-22T09:06:15.946Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-23T00:23:16.974Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-23T09:05:35.596Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-24T00:26:42.635Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-24T09:05:32.456Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-25T00:25:12.195Z",
+>>>>>>> Stashed changes
+  "pages": [
+    {
+      "id": "2533666d-ffd1-80b6-9f33-ce113de147bc",
+      "last_edited_time": "2025-08-18T05:59:00.000Z",
+      "properties": {
+        "注文日": "2025-08-18",
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+        "合計金額": 3900,
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
+        "支払い方法": "クレジットカード",
+        "顧客名": [
+          "2503666d-ffd1-80e5-9bae-c915d778af84"
+        ],
+        "ステータス": "受付済み",
+        "商品名": [
+          "2503666d-ffd1-8028-86e4-c1d25daf6899"
+        ],
+        "数量": 1,
+        "注文ID": "ORD-2025-0814"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-80a0-aecd-dc6b58e9fc92",
+      "last_edited_time": "2025-08-15T05:10:00.000Z",
+      "properties": {
+        "注文日": "2025-08-11",
+        "合計金額": 3500,
+        "支払い方法": "銀行振込",
+        "顧客名": [
+          "2503666d-ffd1-8041-90b7-d6c69d88d780"
+        ],
+        "ステータス": "発送済み",
+        "商品名": [
+          "2503666d-ffd1-801f-a735-f182189d92cb"
+        ],
+        "数量": 1,
+        "注文ID": "ORD-2025-0811"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-8019-a497-d15d08f6534a",
+      "last_edited_time": "2025-08-18T05:57:00.000Z",
+      "properties": {
+        "注文日": "2025-08-13",
+        "合計金額": 12800,
+        "支払い方法": "コンビニ払い",
+        "顧客名": [
+          "2503666d-ffd1-80ed-b0bb-c25bd2308bcd"
+        ],
+        "ステータス": "受付済み",
+        "商品名": [
+          "2503666d-ffd1-8026-90a3-f5f512a955b6"
+        ],
+        "数量": 1,
+        "注文ID": "ORD-2025-0813"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-80ba-a22a-cca066cb9841",
+      "last_edited_time": "2025-08-15T05:17:00.000Z",
+      "properties": {
+        "注文日": "2025-08-12",
+        "合計金額": 15000,
+        "支払い方法": "クレジットカード",
+        "顧客名": [
+          "2503666d-ffd1-80e5-9bae-c915d778af84"
+        ],
+        "ステータス": "処理中",
+        "商品名": [
+          "2503666d-ffd1-800c-a290-e66d2d79b482"
+        ],
+        "数量": 1,
+        "注文ID": "ORD-2025-0812"
+      }
+    }
+  ]
+}

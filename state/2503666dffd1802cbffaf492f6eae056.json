@@ -1,0 +1,279 @@
+{
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+  "lastSync": "2025-08-18T06:58:46.887Z",
+=======
+  "lastSync": "2025-08-18T08:18:46.611Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-18T08:21:40.738Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-18T09:08:41.589Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-19T00:24:47.986Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-19T09:06:17.723Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-20T00:23:43.737Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-20T09:06:50.987Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-21T00:22:57.861Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-21T09:06:29.715Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-22T00:23:53.077Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-22T09:06:18.295Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-23T00:23:18.414Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-23T09:05:39.493Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-24T00:26:42.960Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-24T09:05:32.892Z",
+>>>>>>> Stashed changes
+=======
+  "lastSync": "2025-08-25T00:25:15.782Z",
+>>>>>>> Stashed changes
+  "pages": [
+    {
+      "id": "2503666d-ffd1-800c-a290-e66d2d79b482",
+      "last_edited_time": "2025-08-15T05:07:00.000Z",
+      "properties": {
+        "商品説明": "アクティブに働くオフィスマンへ！品のあるビジネスバッグです。",
+        "ステータス": "販売中",
+        "SKU番号": "BS-BL-K200",
+        "価格": 15000,
+        "入荷日": "2025-08-01",
+        "在庫数": 20,
+        "カテゴリ": "日用品",
+        "仕入先": "直接取引",
+        "商品名": "ビジネスバッグ"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-801f-a735-f182189d92cb",
+      "last_edited_time": "2025-08-15T05:09:00.000Z",
+      "properties": {
+        "商品説明": "大切な人への贈り物に。高級ボールペンセットです。",
+        "ステータス": "販売中",
+        "SKU番号": "HQ-BP-S100A",
+        "価格": 3500,
+        "入荷日": "2025-06-25",
+        "在庫数": 3,
+        "カテゴリ": "日用品",
+        "仕入先": "自社製造",
+        "商品名": "高級ボールペンセット"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-8026-90a3-f5f512a955b6",
+      "last_edited_time": "2025-08-15T05:08:00.000Z",
+      "properties": {
+        "商品説明": "完全ワイヤレスイヤホン、ノイズキャンセリングとハイレゾ音源に対応したコスパ重視のモデル。",
+        "ステータス": "販売中",
+        "SKU番号": "WE-WH-A2002",
+        "価格": 12800,
+        "入荷日": "2025-07-31",
+        "在庫数": 100,
+        "カテゴリ": "家電",
+        "仕入先": "海外メーカー",
+        "商品名": "ワイヤレスイヤホン"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-8025-b323-c84b4656493a",
+      "last_edited_time": "2025-08-15T04:56:00.000Z",
+      "properties": {
+        "商品説明": "スムージー、スープ、ソースなど様々な調理に対応する1000W高出力ブレンダー。ガラス容器で洗浄も簡単。",
+        "ステータス": "入荷待ち",
+        "SKU番号": "KT-BL-M500",
+        "価格": 12500,
+        "入荷日": "2025-08-18",
+        "在庫数": 0,
+        "カテゴリ": "キッチン",
+        "仕入先": "卸売業者",
+        "商品名": "多機能キッチンブレンダー"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-8028-86e4-c1d25daf6899",
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+      "last_edited_time": "2025-08-15T04:56:00.000Z",
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+=======
+      "last_edited_time": "2025-08-18T08:21:00.000Z",
+>>>>>>> Stashed changes
+      "properties": {
+        "商品説明": "肌触りの良い100%オーガニックコットン素材を使用した環境に優しいTシャツ。サイズはS、M、L、XLを取り扱い。",
+        "ステータス": "残りわずか",
+        "SKU番号": "CL-TS-OC001",
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+        "価格": 3900,
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+=======
+        "価格": 2900,
+>>>>>>> Stashed changes
+        "入荷日": "2025-08-14",
+        "在庫数": 8,
+        "カテゴリ": "衣類",
+        "仕入先": "国内メーカー",
+        "商品名": "オーガニックコットンTシャツ"
+      }
+    },
+    {
+      "id": "2503666d-ffd1-80f0-a744-f99e4133d84e",
+      "last_edited_time": "2025-08-15T04:56:00.000Z",
+      "properties": {
+        "商品説明": "防水機能、心拍数モニター、睡眠トラッキング機能付きの最新スマートウォッチ。バッテリー持続時間は約7日間。",
+        "ステータス": "販売中",
+        "SKU番号": "EL-SW-X200",
+        "価格": 19800,
+        "入荷日": "2025-08-12",
+        "在庫数": 45,
+        "カテゴリ": "家電",
+        "仕入先": "海外メーカー",
+        "商品名": "高機能スマートウォッチ X-200"
+      }
+    }
+  ]
+}
