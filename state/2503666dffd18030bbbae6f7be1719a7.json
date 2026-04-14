@@ -478,6 +478,7 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   "lastSync": "2025-08-18T06:58:46.603Z",
   "pages": [
     {
@@ -3271,6 +3272,11 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+=======
+  "lastSync": "2026-04-14T00:43:05.145Z",
+  "pages": [
+    {
+>>>>>>> Stashed changes
       "id": "2503666d-ffd1-80ed-b0bb-c25bd2308bcd",
       "last_edited_time": "2025-08-15T05:00:00.000Z",
       "properties": {
@@ -3282,6 +3288,9 @@
       }
     },
     {
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -4407,6 +4416,7 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
 =======
 >>>>>>> Stashed changes
@@ -6274,6 +6284,19 @@
 =======
 >>>>>>> Stashed changes
 =======
+>>>>>>> Stashed changes
+=======
+    },
+    {
+      "id": "2503666d-ffd1-8041-90b7-d6c69d88d780",
+      "last_edited_time": "2025-08-15T05:00:00.000Z",
+      "properties": {
+        "最終接触日": "2025-08-11",
+        "顧客ID": 1002,
+        "電話番号": "045-9876-5432",
+        "連絡先メール": "tanaka.ichiro@example.com",
+        "顧客名": "田中一郎"
+      }
 >>>>>>> Stashed changes
     }
   ]

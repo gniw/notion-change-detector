@@ -478,6 +478,7 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   "lastSync": "2025-08-18T06:58:46.339Z",
 =======
   "lastSync": "2025-08-18T08:18:46.176Z",
@@ -2356,6 +2357,9 @@
 =======
   "lastSync": "2026-04-13T09:40:42.938Z",
 >>>>>>> Stashed changes
+=======
+  "lastSync": "2026-04-14T00:43:04.561Z",
+>>>>>>> Stashed changes
   "pages": [
     {
       "id": "2503666d-ffd1-8019-a497-d15d08f6534a",
@@ -2744,6 +2748,7 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -3486,6 +3491,26 @@
 =======
 >>>>>>> Stashed changes
 =======
+>>>>>>> Stashed changes
+=======
+      }
+    },
+    {
+      "id": "2503666d-ffd1-80ba-a22a-cca066cb9841",
+      "last_edited_time": "2025-08-15T05:17:00.000Z",
+      "properties": {
+        "注文日": "2025-08-12",
+        "合計金額": 15000,
+        "支払い方法": "クレジットカード",
+        "顧客名": [
+          "2503666d-ffd1-80e5-9bae-c915d778af84"
+        ],
+        "ステータス": "処理中",
+        "商品名": [
+          "2503666d-ffd1-800c-a290-e66d2d79b482"
+        ],
+        "数量": 1,
+        "注文ID": "ORD-2025-0812"
 >>>>>>> Stashed changes
       }
     },
@@ -3508,6 +3533,7 @@
       }
     },
     {
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -5775,6 +5801,8 @@
 >>>>>>> Stashed changes
     },
     {
+=======
+>>>>>>> Stashed changes
       "id": "2533666d-ffd1-80b6-9f33-ce113de147bc",
       "last_edited_time": "2025-08-18T05:59:00.000Z",
       "properties": {
@@ -6162,6 +6190,9 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
