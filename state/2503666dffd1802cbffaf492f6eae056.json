@@ -479,6 +479,7 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   "lastSync": "2025-08-18T06:58:46.887Z",
 =======
   "lastSync": "2025-08-18T08:18:46.611Z",
@@ -1933,6 +1934,9 @@
         "商品名": "ビジネスバッグ"
 =======
   "lastSync": "2026-04-14T00:43:05.485Z",
+=======
+  "lastSync": "2026-04-14T09:36:24.539Z",
+>>>>>>> Stashed changes
   "pages": [
     {
       "id": "2503666d-ffd1-8028-86e4-c1d25daf6899",
@@ -1992,6 +1996,9 @@
         "カテゴリ": "家電",
         "仕入先": "海外メーカー",
         "商品名": "高機能スマートウォッチ X-200"
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
       }
     },
@@ -2011,6 +2018,7 @@
       }
     },
     {
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -7768,6 +7776,8 @@
         "仕入先": "海外メーカー",
         "商品名": "高機能スマートウォッチ X-200"
 =======
+=======
+>>>>>>> Stashed changes
       "id": "2503666d-ffd1-800c-a290-e66d2d79b482",
       "last_edited_time": "2025-08-15T05:07:00.000Z",
       "properties": {
@@ -7780,6 +7790,9 @@
         "カテゴリ": "日用品",
         "仕入先": "直接取引",
         "商品名": "ビジネスバッグ"
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
       }
     }
