@@ -642,6 +642,7 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   "lastSync": "2025-08-18T06:58:46.339Z",
 =======
   "lastSync": "2025-08-18T08:18:46.176Z",
@@ -1288,12 +1289,16 @@
 =======
   "lastSync": "2026-07-04T10:54:10.546Z",
 >>>>>>> Stashed changes
+=======
+  "lastSync": "2026-07-05T03:31:03.597Z",
+>>>>>>> Stashed changes
   "pages": [
     {
       "id": "2533666d-ffd1-80b6-9f33-ce113de147bc",
       "last_edited_time": "2025-08-18T05:59:00.000Z",
       "properties": {
         "注文日": "2025-08-18",
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -2151,6 +2156,9 @@
 =======
         "合計金額": 2900,
 >>>>>>> Stashed changes
+=======
+        "合計金額": 2900,
+>>>>>>> Stashed changes
         "支払い方法": "クレジットカード",
         "顧客名": [
           "2503666d-ffd1-80e5-9bae-c915d778af84"
@@ -2161,6 +2169,7 @@
         ],
         "数量": 1,
         "注文ID": "ORD-2025-0814"
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -5088,6 +5097,8 @@
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       }
     },
     {
@@ -5645,6 +5656,9 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -5987,6 +6001,9 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -7071,6 +7088,7 @@
         "数量": 1,
         "注文ID": "ORD-2025-0812"
       }
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -9013,6 +9031,8 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
